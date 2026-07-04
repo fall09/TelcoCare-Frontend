@@ -1,0 +1,160 @@
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  background: linear-gradient(180deg, #082b63 0%, #061b3f 100%);
+  color: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---------- Logo ---------- */
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 24px;
+
+    border-bottom: 1px solid rgba(255,255,255,.08);
+
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: #2f6bff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.sidebar-logo h2 {
+    font-size: 30px;
+    font-weight: 800;
+}
+
+/* ---------- Menu ---------- */
+
+.sidebar-menu {
+
+    flex: 1;
+
+    padding: 24px 14px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    overflow-y: auto;
+
+}
+
+.menu-item {
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #edf3ff;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+
+    padding: 15px 18px;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    transition: .25s;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    text-align: left;
+
+}
+
+.menu-item:hover {
+
+    background: rgba(255,255,255,.10);
+
+}
+
+.menu-item.active {
+
+    background: #2f6bff;
+
+    box-shadow: 0 10px 24px rgba(47,107,255,.35);
+
+}
+
+/* ---------- Footer ---------- */
+
+.sidebar-footer {
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 20px 24px;
+
+    border-top: 1px solid rgba(255,255,255,.08);
+
+}
+
+.avatar {
+
+    width: 50px;
+    height: 50px;
+
+    border-radius: 50%;
+
+    background: #2f6bff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+
+}
+
+.sidebar-footer h4 {
+
+    font-size: 15px;
+    font-weight: 700;
+
+}
+
+.sidebar-footer p {
+
+    margin-top: 2px;
+
+    font-size: 13px;
+
+    color: #b9c6e2;
+
+}
