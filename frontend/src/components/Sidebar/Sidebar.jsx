@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
@@ -9,19 +10,36 @@ const Sidebar = () => {
       </div>
 
       <nav className="sidebar-menu">
-        <button className="menu-item active">Dashboard</button>
-        <button className="menu-item">Tickets</button>
-        <button className="menu-item">Customers</button>
-        <button className="menu-item">Reports</button>
-        <button className="menu-item">Categories</button>
-        <button className="menu-item">Settings</button>
+        <NavLink to="/" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+          Dashboard
+        </NavLink>
+
+        <NavLink to="/tickets" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+          Tickets
+        </NavLink>
+
+        <NavLink to="/customers" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+          Customers
+        </NavLink>
+
+        <NavLink to="/reports" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+          Reports
+        </NavLink>
+
+        <NavLink to="/categories" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+          Categories
+        </NavLink>
+
+        <NavLink to="/settings" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+          Settings
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">
-        <div className="avatar">EE</div>
+        <div className="avatar">TC</div>
         <div>
           <h4>Administrator</h4>
-          <p>Call Center System</p>
+          <p>Tickets Management System</p>
         </div>
       </div>
     </aside>

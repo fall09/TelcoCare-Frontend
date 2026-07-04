@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Customers.css";
-import { getCustomers } from "../../services/customerService";
+import { getCustomers, updateCustomerStatus } from "../../services/customerService";
+import {
+  getCustomerStatuses,
+  getInactiveReasons,
+  getSuspendedReasons,
+} from "../../services/customerStatusService";
 
 function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -9,10 +15,23 @@ function Customers() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [statuses, setStatuses] = useState([]);
+  const [inactiveReasons, setInactiveReasons] = useState([]);
+  const [suspendedReasons, setSuspendedReasons] = useState([]);
+
+  const [newStatus, setNewStatus] = useState("");
+  const [inactiveReason, setInactiveReason] = useState("");
+  const [suspendedReason, setSuspendedReason] = useState("");
+  const [note, setNote] = useState("");
+  const [statusError, setStatusError] = useState("");
+
+  const navigate = useNavigate();
   const rowsPerPage = 15;
 
   useEffect(() => {
     loadCustomers();
+    loadStatusOptions();
   }, []);
 
   const loadCustomers = async (searchText = "") => {
@@ -25,16 +44,56 @@ function Customers() {
     }
   };
 
+  const loadStatusOptions = async () => {
+    setStatuses(await getCustomerStatuses());
+    setInactiveReasons(await getInactiveReasons());
+    setSuspendedReasons(await getSuspendedReasons());
+  };
+
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearch(value);
     loadCustomers(value);
   };
 
-  const handleStatusChange = (status) => {
+  const handleStatusFilterChange = (status) => {
     setStatusFilter(status);
     setShowStatusMenu(false);
     setCurrentPage(1);
+  };
+
+  const openStatusModal = (customer) => {
+    setSelectedCustomer(customer);
+    setNewStatus(customer.status);
+    setInactiveReason("");
+    setSuspendedReason("");
+    setNote("");
+    setStatusError("");
+  };
+
+  const submitStatusChange = async () => {
+    try {
+      setStatusError("");
+
+      const payload = {
+        status: newStatus,
+        inactiveReason: newStatus === "INACTIVE" ? inactiveReason : null,
+        suspendedReason: newStatus === "SUSPENDED" ? suspendedReason : null,
+        note,
+      };
+
+      const updatedCustomer = await updateCustomerStatus(selectedCustomer.id, payload);
+
+      setCustomers((prev) =>
+        prev.map((customer) =>
+          customer.id === updatedCustomer.id ? updatedCustomer : customer
+        )
+      );
+
+      setSelectedCustomer(null);
+    } catch (error) {
+      setStatusError(error.message);
+    }
   };
 
   const filteredCustomers =
@@ -58,7 +117,12 @@ function Customers() {
           <p>View and manage customer records.</p>
         </div>
 
-        <button className="create-customer-btn">+ New Customer</button>
+        <button
+          className="create-customer-btn"
+          onClick={() => navigate("/customers/new")}
+        >
+          + New Customer
+        </button>
       </div>
 
       <div className="customers-filter">
@@ -89,10 +153,10 @@ function Customers() {
 
             {showStatusMenu && (
               <div className="status-filter-menu">
-                <button onClick={() => handleStatusChange("ALL")}>All</button>
-                <button onClick={() => handleStatusChange("ACTIVE")}>Active</button>
-                <button onClick={() => handleStatusChange("INACTIVE")}>Inactive</button>
-                <button onClick={() => handleStatusChange("SUSPENDED")}>Suspended</button>
+                <button onClick={() => handleStatusFilterChange("ALL")}>All</button>
+                <button onClick={() => handleStatusFilterChange("ACTIVE")}>Active</button>
+                <button onClick={() => handleStatusFilterChange("INACTIVE")}>Inactive</button>
+                <button onClick={() => handleStatusFilterChange("SUSPENDED")}>Suspended</button>
               </div>
             )}
           </div>
@@ -107,9 +171,12 @@ function Customers() {
             <div>{customer.province}</div>
             <div>{customer.district}</div>
             <div>
-              <span className={`customer-status ${customer.status.toLowerCase()}`}>
+              <button
+                className={`customer-status ${customer.status.toLowerCase()}`}
+                onClick={() => openStatusModal(customer)}
+              >
                 {customer.status}
-              </span>
+              </button>
             </div>
           </div>
         ))}
@@ -132,6 +199,83 @@ function Customers() {
           Next
         </button>
       </div>
+
+      {selectedCustomer && (
+        <div className="modal-overlay">
+          <div className="status-modal">
+            <h2>Change Customer Status</h2>
+            <p>
+              {selectedCustomer.firstName} {selectedCustomer.lastName}
+            </p>
+
+            {statusError && <div className="form-error">{statusError}</div>}
+
+            <label>Status</label>
+            <select
+              value={newStatus}
+              onChange={(e) => {
+                setNewStatus(e.target.value);
+                setInactiveReason("");
+                setSuspendedReason("");
+              }}
+            >
+              {statuses.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.displayName}
+                </option>
+              ))}
+            </select>
+
+            {newStatus === "INACTIVE" && (
+              <>
+                <label>Inactive Reason</label>
+                <select
+                  value={inactiveReason}
+                  onChange={(e) => setInactiveReason(e.target.value)}
+                >
+                  <option value="">Select reason</option>
+                  {inactiveReasons.map((reason) => (
+                    <option key={reason.value} value={reason.value}>
+                      {reason.displayName}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            {newStatus === "SUSPENDED" && (
+              <>
+                <label>Suspended Reason</label>
+                <select
+                  value={suspendedReason}
+                  onChange={(e) => setSuspendedReason(e.target.value)}
+                >
+                  <option value="">Select reason</option>
+                  {suspendedReasons.map((reason) => (
+                    <option key={reason.value} value={reason.value}>
+                      {reason.displayName}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            <label>Note</label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Optional note..."
+            />
+
+            <div className="modal-actions">
+              <button onClick={() => setSelectedCustomer(null)}>Cancel</button>
+              <button className="primary-btn" onClick={submitStatusChange}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

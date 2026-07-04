@@ -120,6 +120,7 @@
 }
 
 .customer-status {
+  border: none;
   display: inline-block;
   min-width: 95px;
   text-align: center;
@@ -127,6 +128,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .customer-status.active {
@@ -170,4 +172,101 @@
 .pagination span {
   color: #475569;
   font-weight: 600;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.status-modal {
+  width: 540px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.28);
+  border-top: 6px solid #2f6bff;
+}
+
+.status-modal h2 {
+  font-size: 25px;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.status-modal p {
+  color: #64748b;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.status-modal label {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.status-modal select,
+.status-modal textarea {
+  width: 100%;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: 14px;
+  background: white;
+  outline: none;
+}
+
+.status-modal select:focus,
+.status-modal textarea:focus {
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.12);
+}
+
+.status-modal textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.modal-actions button {
+  border: none;
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.modal-actions button:first-child {
+  background: #eef2f7;
+  color: #475569;
+}
+
+.modal-actions .primary-btn {
+  background: #2f6bff;
+  color: white;
+}
+
+.form-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 13px 15px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  font-weight: 800;
 }
