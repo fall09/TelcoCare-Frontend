@@ -141,6 +141,26 @@ function Categories() {
     ).length,
   }));
 
+  const handleToggleLocation = async (sub) => {
+  try {
+    const updated = await updateSubCategory(sub.id, {
+      name: sub.name,
+      locationRequired: !sub.locationRequired,
+      defaultPriority: sub.defaultPriority,
+    });
+
+    setSubCategories((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item))
+    );
+
+    setAllSubCategories((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item))
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   const selectedPriorityItems = selectedPriority
     ? allSubCategories.filter(
         (sub) => (sub.defaultPriority || "MEDIUM") === selectedPriority
@@ -274,9 +294,18 @@ function Categories() {
                 <div className="subcategory-item" key={sub.id}>
                   <div>
                     <strong>{sub.name}</strong>
-                    <p>
-                      Location Required: {sub.locationRequired ? "Yes" : "No"}
-                    </p>
+                    <div className="location-toggle">
+  <span>Location</span>
+
+  <button
+    className={`location-switch ${
+      sub.locationRequired ? "required" : "optional"
+    }`}
+    onClick={() => handleToggleLocation(sub)}
+  >
+    {sub.locationRequired ? "Required" : "Optional"}
+  </button>
+</div>
                   </div>
 
                   <span className={`priority-badge ${priority.toLowerCase()}`}>

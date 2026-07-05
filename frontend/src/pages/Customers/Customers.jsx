@@ -170,12 +170,20 @@ function Customers() {
             <div>{customer.email}</div>
             <div>{customer.province}</div>
             <div>{customer.district}</div>
-            <div>
+
+            <div className="status-cell">
               <button
                 className={`customer-status ${customer.status.toLowerCase()}`}
                 onClick={() => openStatusModal(customer)}
               >
                 {customer.status}
+              </button>
+
+              <button
+                className="history-btn"
+                onClick={() => navigate(`/customers/${customer.id}/status-history`)}
+              >
+                Details
               </button>
             </div>
           </div>

@@ -43,3 +43,21 @@ export async function createSubCategory(categoryId, payload) {
 
   return response.json();
 }
+
+export async function updateSubCategory(subCategoryId, payload) {
+  const response = await fetch(
+    `http://localhost:8080/api/categories/sub-categories/${subCategoryId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update sub category");
+  }
+
+  return response.json();
+}

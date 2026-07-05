@@ -270,3 +270,19 @@
   margin-bottom: 18px;
   font-weight: 800;
 }
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-btn {
+  border: none;
+  background: #eef2ff;
+  color: #2f6bff;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+}
