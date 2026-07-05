@@ -11,38 +11,29 @@ export async function getSubCategories(categoryId) {
   if (!response.ok) throw new Error("Failed to fetch sub categories");
   return response.json();
 }
+
 export async function createCategory(payload) {
-  const response = await fetch("http://localhost:8080/api/categories", {
+  const response = await fetch(BASE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to create category");
-  }
-
+  if (!response.ok) throw new Error("Failed to create category");
   return response.json();
 }
 
 export async function createSubCategory(categoryId, payload) {
-  const response = await fetch(
-    `http://localhost:8080/api/categories/${categoryId}/sub-categories`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }
-  );
+  const response = await fetch(`${BASE_URL}/${categoryId}/sub-categories`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to create sub category");
-  }
-
+  if (!response.ok) throw new Error("Failed to create sub category");
   return response.json();
 }
+
 
 export async function updateSubCategory(subCategoryId, payload) {
   const response = await fetch(
@@ -55,8 +46,7 @@ export async function updateSubCategory(subCategoryId, payload) {
   );
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to update sub category");
+    throw new Error("Failed to update sub category");
   }
 
   return response.json();
