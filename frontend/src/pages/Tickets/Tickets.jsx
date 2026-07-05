@@ -1,8 +1,38 @@
 import { useEffect, useState } from "react";
-import { Search, Ticket, AlertCircle } from "lucide-react";
+import { Search, Ticket, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import "./Tickets.css";
 import { getTickets } from "../../services/ticketService";
 import { useNavigate } from "react-router-dom";
+
+const chartColors = {
+  OPEN: "#2563eb",
+  IN_PROGRESS: "#7c3aed",
+  RESOLVED: "#16a34a",
+  CLOSED: "#64748b",
+  LOW: "#22c55e",
+  MEDIUM: "#f59e0b",
+  HIGH: "#ef4444",
+  CRITICAL: "#111827",
+  Internet: "#2563eb",
+  Mobile: "#7c3aed",
+  Billing: "#f59e0b",
+  TV: "#16a34a",
+  Subscription: "#ec4899",
+  Device: "#06b6d4",
+  Infrastructure: "#ef4444",
+  Account: "#8b5cf6",
+  Complaint: "#111827",
+  Information: "#64748b",
+  Other: "#94a3b8",
+};
 
 function Tickets() {
   const [tickets, setTickets] = useState([]);
@@ -10,8 +40,9 @@ function Tickets() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
+  const [chartMode, setChartMode] = useState("STATUS");
 
+  const navigate = useNavigate();
   const rowsPerPage = 15;
 
   useEffect(() => {
@@ -46,15 +77,90 @@ function Tickets() {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentTickets = filteredTickets.slice(
     startIndex,
-    startIndex + rowsPerPage,
+    startIndex + rowsPerPage
   );
 
   const countByStatus = (status) =>
     tickets.filter((ticket) => ticket.status === status).length;
 
   const criticalCount = tickets.filter(
-    (ticket) => ticket.priority === "CRITICAL",
+    (ticket) => ticket.priority === "CRITICAL"
   ).length;
+
+  const resolvedCount =
+    countByStatus("RESOLVED") + countByStatus("CLOSED");
+
+  const unresolvedCount =
+    countByStatus("OPEN") + countByStatus("IN_PROGRESS");
+
+  const criticalInProgressCount = tickets.filter(
+    (ticket) =>
+      ticket.status === "IN_PROGRESS" && ticket.priority === "CRITICAL"
+  ).length;
+
+  const nonCriticalInProgressCount = tickets.filter(
+    (ticket) =>
+      ticket.status === "IN_PROGRESS" && ticket.priority !== "CRITICAL"
+  ).length;
+
+  const buildCountData = (items, field) => {
+    const result = {};
+
+    items.forEach((item) => {
+      const key = item[field] || "Unknown";
+      result[key] = (result[key] || 0) + 1;
+    });
+
+    return Object.entries(result).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  };
+
+  const getChartData = () => {
+    if (chartMode === "STATUS") {
+      return buildCountData(tickets, "status");
+    }
+
+    if (chartMode === "PRIORITY") {
+      return buildCountData(tickets, "priority");
+    }
+
+    if (chartMode === "CRITICAL_CATEGORY") {
+      return buildCountData(
+        tickets.filter((ticket) => ticket.priority === "CRITICAL"),
+        "category"
+      );
+    }
+
+    if (chartMode === "OPEN_CATEGORY") {
+      return buildCountData(
+        tickets.filter((ticket) => ticket.status === "OPEN"),
+        "category"
+      );
+    }
+
+    if (chartMode === "IN_PROGRESS_CATEGORY") {
+      return buildCountData(
+        tickets.filter((ticket) => ticket.status === "IN_PROGRESS"),
+        "category"
+      );
+    }
+
+    return [];
+  };
+
+  const getChartTitle = () => {
+    if (chartMode === "STATUS") return "Ticket Status Distribution";
+    if (chartMode === "PRIORITY") return "Ticket Priority Distribution";
+    if (chartMode === "CRITICAL_CATEGORY") return "Critical Tickets by Category";
+    if (chartMode === "OPEN_CATEGORY") return "Open Tickets by Category";
+    if (chartMode === "IN_PROGRESS_CATEGORY")
+      return "In Progress Tickets by Category";
+    return "Ticket Analytics";
+  };
+
+  const chartData = getChartData();
 
   return (
     <div className="tickets-page">
@@ -73,7 +179,10 @@ function Tickets() {
       </div>
 
       <div className="ticket-stats">
-        <div className="ticket-stat-card">
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("STATUS")}
+        >
           <div className="ticket-stat-icon blue">
             <Ticket size={22} />
           </div>
@@ -81,35 +190,133 @@ function Tickets() {
             <span>Total Tickets</span>
             <strong>{tickets.length}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="ticket-stat-card">
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("OPEN_CATEGORY")}
+        >
           <div className="ticket-stat-icon orange">
-            <Ticket size={22} />
+            <Clock size={22} />
           </div>
           <div>
-            <span>Open</span>
-            <strong>{countByStatus("OPEN")}</strong>
+            <span>Unresolved</span>
+            <strong>{unresolvedCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="ticket-stat-card">
-          <div className="ticket-stat-icon purple">
-            <Ticket size={22} />
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("PRIORITY")}
+        >
+          <div className="ticket-stat-icon green">
+            <CheckCircle2 size={22} />
           </div>
           <div>
-            <span>In Progress</span>
-            <strong>{countByStatus("IN_PROGRESS")}</strong>
+            <span>Resolved</span>
+            <strong>{resolvedCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="ticket-stat-card">
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("CRITICAL_CATEGORY")}
+        >
           <div className="ticket-stat-icon red">
             <AlertCircle size={22} />
           </div>
           <div>
             <span>Critical</span>
             <strong>{criticalCount}</strong>
+          </div>
+        </button>
+      </div>
+
+      <div className="ticket-analytics-card">
+        <div className="analytics-header">
+          <div>
+            <h2>{getChartTitle()}</h2>
+            <p>Hover over chart segments to see ticket counts.</p>
+          </div>
+
+          <div className="analytics-tabs">
+            <button
+              className={chartMode === "STATUS" ? "active" : ""}
+              onClick={() => setChartMode("STATUS")}
+            >
+              Status
+            </button>
+            <button
+              className={chartMode === "PRIORITY" ? "active" : ""}
+              onClick={() => setChartMode("PRIORITY")}
+            >
+              Priority
+            </button>
+            <button
+              className={chartMode === "OPEN_CATEGORY" ? "active" : ""}
+              onClick={() => setChartMode("OPEN_CATEGORY")}
+            >
+              Open
+            </button>
+            <button
+              className={chartMode === "IN_PROGRESS_CATEGORY" ? "active" : ""}
+              onClick={() => setChartMode("IN_PROGRESS_CATEGORY")}
+            >
+              In Progress
+            </button>
+            <button
+              className={chartMode === "CRITICAL_CATEGORY" ? "active" : ""}
+              onClick={() => setChartMode("CRITICAL_CATEGORY")}
+            >
+              Critical
+            </button>
+          </div>
+        </div>
+
+        <div className="analytics-content">
+          <div className="chart-box">
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={70}
+                  outerRadius={105}
+                  paddingAngle={4}
+                >
+                  {chartData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={chartColors[entry.name] || "#94a3b8"}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => [`${value} tickets`, name]}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="analytics-summary">
+            <div>
+              <span>Open</span>
+              <strong>{countByStatus("OPEN")}</strong>
+            </div>
+            <div>
+              <span>In Progress</span>
+              <strong>{countByStatus("IN_PROGRESS")}</strong>
+            </div>
+            <div>
+              <span>Critical In Progress</span>
+              <strong>{criticalInProgressCount}</strong>
+            </div>
+            <div>
+              <span>Non-Critical In Progress</span>
+              <strong>{nonCriticalInProgressCount}</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -210,9 +417,7 @@ function Tickets() {
           Previous
         </button>
 
-        <span>
-          Page {currentPage} of {totalPages || 1}
-        </span>
+        <span>Page {currentPage} of {totalPages || 1}</span>
 
         <button
           disabled={currentPage === totalPages || totalPages === 0}
