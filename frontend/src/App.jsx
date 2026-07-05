@@ -6,6 +6,8 @@ import CreateCustomer from "./pages/CreateCustomer/CreateCustomer";
 import CustomerStatusHistory from "./pages/CustomerStatusHistory/CustomerStatusHistory";
 import Categories from "./pages/Category/Categories";
 import Settings from "./pages/Settings/Settings";
+import Tickets from "./pages/Tickets/Tickets";
+import CreateTicket from "./pages/CreateTicket/CreateTicket";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
             <Route path="/customers/:id/status-history" element={<CustomerStatusHistory />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/tickets" element={<Tickets />} />
+            <Route path="/tickets/new" element={<CreateTicket />} />
           </Routes>
         </main>
       </div>

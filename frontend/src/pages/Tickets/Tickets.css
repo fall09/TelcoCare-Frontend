@@ -2,136 +2,206 @@
   width: 100%;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
-}
-
-.page-header h1 {
-  font-size: 32px;
-  color: #111827;
-}
-
-.page-header p {
-  margin-top: 6px;
-  color: #6b7280;
-}
-
 .create-ticket-btn {
   border: none;
   background: #2f6bff;
   color: white;
   padding: 13px 20px;
   border-radius: 12px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 
-.filters-card {
+.ticket-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.ticket-stat-card {
+  background: white;
+  border-radius: 22px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.07);
+}
+
+.ticket-stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ticket-stat-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.ticket-stat-icon.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.ticket-stat-icon.purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.ticket-stat-icon.red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.ticket-stat-card span {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ticket-stat-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 30px;
+  color: #111827;
+}
+
+.tickets-filter-card {
   background: white;
   border-radius: 18px;
   padding: 18px;
-  display: flex;
-  gap: 14px;
   margin-bottom: 22px;
+  display: grid;
+  grid-template-columns: 1fr 200px 200px;
+  gap: 14px;
   box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
 }
 
-.filters-card input,
-.filters-card select {
-  height: 44px;
+.ticket-search {
+  height: 46px;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ticket-search input {
+  width: 100%;
+  border: none;
+  outline: none;
   font-size: 14px;
 }
 
-.filters-card input {
-  flex: 1;
+.tickets-filter-card select {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-weight: 700;
+  color: #475569;
+  outline: none;
 }
 
-.table-card {
+.tickets-table-card {
   background: white;
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.tickets-table-header,
+.tickets-table-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1.7fr 1.2fr 1.7fr 1fr 1fr 1fr;
+  align-items: center;
 }
 
-th {
-  text-align: left;
+.tickets-table-header {
+  background: #f8fafc;
+  color: #64748b;
   font-size: 13px;
-  color: #6b7280;
-  background: #f9fafb;
+  font-weight: 800;
   padding: 16px;
 }
 
-td {
+.tickets-table-row {
   padding: 16px;
-  border-top: 1px solid #f1f5f9;
-  color: #111827;
+  border-top: 1px solid #eef2f7;
   font-size: 14px;
+  color: #111827;
 }
 
-.ticket-id {
-  font-weight: 700;
+.tickets-table-row strong {
+  display: block;
+  color: #111827;
+}
+
+.tickets-table-row span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.ticket-number {
+  font-weight: 900;
   color: #2f6bff;
 }
 
-.badge {
-  padding: 6px 10px;
+.ticket-priority,
+.ticket-status {
+  display: inline-block !important;
+  min-width: 92px;
+  text-align: center;
+  padding: 7px 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 12px !important;
+  font-weight: 900;
+  margin-top: 0 !important;
 }
 
-.priority.low {
+.ticket-priority.low {
   background: #dcfce7;
   color: #15803d;
 }
 
-.priority.medium {
+.ticket-priority.medium {
   background: #fef3c7;
   color: #b45309;
 }
 
-.priority.high {
-  background: #ffedd5;
-  color: #c2410c;
-}
-
-.priority.critical {
+.ticket-priority.high {
   background: #fee2e2;
-  color: #b91c1c;
+  color: #dc2626;
 }
 
-.status.open {
+.ticket-priority.critical {
+  background: #111827;
+  color: white;
+}
+
+.ticket-status.open {
   background: #dbeafe;
-  color: #1d4ed8;
+  color: #2563eb;
 }
 
-.status.in_progress {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.status.on_hold {
+.ticket-status.in_progress {
   background: #ede9fe;
-  color: #6d28d9;
+  color: #7c3aed;
 }
 
-.status.resolved {
+.ticket-status.resolved {
   background: #dcfce7;
   color: #15803d;
 }
 
-.status.closed {
-  background: #e5e7eb;
-  color: #374151;
+.ticket-status.closed {
+  background: #f1f5f9;
+  color: #475569;
 }
