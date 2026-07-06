@@ -8,6 +8,8 @@ import Categories from "./pages/Category/Categories";
 import Settings from "./pages/Settings/Settings";
 import Tickets from "./pages/Tickets/Tickets";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/tickets/new" element={<CreateTicket />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </main>
       </div>
