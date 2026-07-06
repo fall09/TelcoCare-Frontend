@@ -8,6 +8,7 @@ import Categories from "./pages/Category/Categories";
 import Settings from "./pages/Settings/Settings";
 import Tickets from "./pages/Tickets/Tickets";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
+import Dashboard from "./pages/Dashboard/Dashboard";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
 
         <main className="main-content">
           <Routes>
+            <Route path="/" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/customers/new" element={<CreateCustomer />} />
             <Route path="/customers/:id/status-history" element={<CustomerStatusHistory />} />

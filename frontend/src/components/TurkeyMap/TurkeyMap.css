@@ -1,0 +1,160 @@
+.turkey-map-container {
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.turkey-map-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.turkey-map-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.clear-filter-btn {
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.clear-filter-btn:hover {
+  background: rgba(37, 99, 235, 0.15);
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.turkey-map-svg {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+}
+
+.province-path {
+  stroke: #ffffff;
+  stroke-width: 0.8;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.province-path.interactive {
+  cursor: pointer;
+}
+
+.province-path.interactive:hover {
+  stroke: #1e293b;
+  stroke-width: 1.2;
+  filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.15));
+  z-index: 10;
+}
+
+.province-path.selected {
+  stroke: #2563eb;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.25));
+}
+
+.province-path.dimmed {
+  opacity: 0.35;
+}
+
+/* North Cyprus / Cyprus Styling */
+.province-path.cyprus {
+  fill: #f1f5f9 !important;
+  stroke: #e2e8f0;
+  pointer-events: none;
+}
+
+/* Floating Custom Tooltip Card */
+.map-tooltip {
+  position: fixed;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  color: #f8fafc;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 9999;
+  width: 220px;
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tooltip-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip-header h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.tooltip-plate {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #cbd5e1;
+}
+
+.tooltip-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tooltip-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.tooltip-metric .label {
+  color: #94a3b8;
+}
+
+.tooltip-metric .value {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.tooltip-metric .value.highlight {
+  color: #60a5fa;
+  font-weight: 700;
+}
