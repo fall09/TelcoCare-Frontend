@@ -11,6 +11,7 @@ import CreateTicket from "./pages/CreateTicket/CreateTicket";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
+import Reports from "./pages/Reports/Reports";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/tickets/new" element={<CreateTicket />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>
