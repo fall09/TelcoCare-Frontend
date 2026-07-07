@@ -40,7 +40,9 @@ function CreateTicket() {
   }, []);
 
   const loadInitialData = async () => {
-    setCustomers(await getCustomers());
+    const customerData = await getCustomers(0, 1000);
+
+    setCustomers(customerData.content || []);
     setCategories(await getCategories());
     setProvinces(await getProvinces());
   };
@@ -57,6 +59,7 @@ function CreateTicket() {
     const data = await getDistrictsByProvince(value);
     setDistricts(data);
   };
+
   const filteredCustomers = customers
     .filter((customer) => {
       const keyword = customerSearch.toLowerCase();
@@ -156,7 +159,7 @@ function CreateTicket() {
                   onClick={() => {
                     setSelectedCustomer(customer);
                     setCustomerSearch(
-                      `#${customer.id} - ${customer.firstName} ${customer.lastName} - ${customer.phoneNumber}`,
+                      `#${customer.id} - ${customer.firstName} ${customer.lastName} - ${customer.phoneNumber}`
                     );
                   }}
                 >
@@ -209,42 +212,42 @@ function CreateTicket() {
             ))}
           </select>
 
-        {selectedSubCategory?.locationRequired && (
-  <div className="location-grid">
-    <div>
-      <label>Issue Province</label>
-      <select
-        value={provinceId}
-        onChange={(e) => handleProvinceChange(e.target.value)}
-        required
-      >
-        <option value="">Select province</option>
-        {provinces.map((province) => (
-          <option key={province.id} value={province.id}>
-            {province.name}
-          </option>
-        ))}
-      </select>
-    </div>
+          {selectedSubCategory?.locationRequired && (
+            <div className="location-grid">
+              <div>
+                <label>Issue Province</label>
+                <select
+                  value={provinceId}
+                  onChange={(e) => handleProvinceChange(e.target.value)}
+                  required
+                >
+                  <option value="">Select province</option>
+                  {provinces.map((province) => (
+                    <option key={province.id} value={province.id}>
+                      {province.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-    <div>
-      <label>Issue District</label>
-      <select
-        value={districtId}
-        onChange={(e) => setDistrictId(e.target.value)}
-        disabled={!provinceId}
-        required
-      >
-        <option value="">Select district</option>
-        {districts.map((district) => (
-          <option key={district.id} value={district.id}>
-            {district.name}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-)}
+              <div>
+                <label>Issue District</label>
+                <select
+                  value={districtId}
+                  onChange={(e) => setDistrictId(e.target.value)}
+                  disabled={!provinceId}
+                  required
+                >
+                  <option value="">Select district</option>
+                  {districts.map((district) => (
+                    <option key={district.id} value={district.id}>
+                      {district.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
 
           {!selectedSubCategory?.locationRequired && selectedCustomer && (
             <div className="ticket-preview">

@@ -2,6 +2,10 @@ import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
+  const employee = JSON.parse(localStorage.getItem("employee") || "{}");
+
+  const initials = `${employee.firstName?.[0] || ""}${employee.lastName?.[0] || ""}`;
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -36,10 +40,13 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="avatar">TC</div>
+        <div className="avatar">{initials}</div>
+
         <div>
-          <h4>Administrator</h4>
-          <p>Tickets Management System</p>
+          <h4>
+            {employee.firstName} {employee.lastName}
+          </h4>
+          <p>Customer Representative</p>
         </div>
       </div>
     </aside>

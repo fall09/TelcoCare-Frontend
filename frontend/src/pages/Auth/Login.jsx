@@ -19,21 +19,23 @@ function Login() {
     }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const employee = await loginEmployee({
-      email: form.email,
-      password: form.password,
-    });
+    try {
+      const data = await loginEmployee({
+        email: form.email,
+        password: form.password,
+      });
 
-    localStorage.setItem("employee", JSON.stringify(employee));
-    navigate("/tickets");
-  } catch (err) {
-    alert(err.message);
-  }
-};
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("employee", JSON.stringify(data.employee));
+
+      navigate("/dashboard");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="auth-page">
@@ -76,8 +78,6 @@ const handleSubmit = async (e) => {
         </form>
 
         <p className="auth-footer">
-          New employee?{" "}
-          <button onClick={() => navigate("/register")}>Create account</button>
         </p>
       </div>
     </div>
