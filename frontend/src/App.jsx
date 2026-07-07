@@ -6,14 +6,18 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home/Home";
 import Login from "./pages/Auth/Login";
+
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Customers from "./pages/Customers/Customers";
 import CreateCustomer from "./pages/CreateCustomer/CreateCustomer";
 import UpdateCustomer from "./pages/UpdateCustomer/UpdateCustomer";
 import CustomerTickets from "./pages/CustomerTickets/CustomerTickets";
 import CustomerStatusHistory from "./pages/CustomerStatusHistory/CustomerStatusHistory";
+
 import Tickets from "./pages/Tickets/Tickets";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
+import TicketDetail from "./pages/Tickets/TicketDetail";
+
 import Categories from "./pages/Category/Categories";
 import Reports from "./pages/Reports/Reports";
 import Settings from "./pages/Settings/Settings";
@@ -27,133 +31,126 @@ function Layout({ children }) {
   );
 }
 
+function ProtectedPage({ children }) {
+  return (
+    <ProtectedRoute>
+      <Layout>{children}</Layout>
+    </ProtectedRoute>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <Dashboard />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/customers"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Customers />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <Customers />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/customers/new"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <CreateCustomer />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <CreateCustomer />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/customers/:id/edit"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <UpdateCustomer />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <UpdateCustomer />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/customers/:id/status-history"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <CustomerStatusHistory />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <CustomerStatusHistory />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/customers/:id/tickets"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <CustomerTickets />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <CustomerTickets />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/tickets"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Tickets />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <Tickets />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/tickets/new"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <CreateTicket />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <CreateTicket />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/tickets/:id"
+          element={
+            <ProtectedPage>
+              <TicketDetail />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/categories"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Categories />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <Categories />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/reports"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Reports />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <Reports />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/settings"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Settings />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedPage>
+              <Settings />
+            </ProtectedPage>
           }
         />
       </Routes>

@@ -375,7 +375,11 @@ function Tickets() {
         </div>
 
         {currentTickets.map((ticket) => (
-          <div className="tickets-table-row" key={ticket.id}>
+          <div
+            className="tickets-table-row clickable-row"
+            key={ticket.id}
+            onClick={() => navigate(`/tickets/${ticket.id}`)}
+          >
             <div className="ticket-number">{ticket.ticketNumber}</div>
 
             <div>
