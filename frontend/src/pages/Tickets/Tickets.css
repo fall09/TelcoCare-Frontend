@@ -306,3 +306,16 @@
   font-size: 28px;
   color: #111827;
 }
+
+.tickets-table-row.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.tickets-table-row.clickable-row:hover {
+  background-color: #f8fafc;
+}
+
+.tickets-table-row.clickable-row:active {
+  transform: scale(0.998);
+}
