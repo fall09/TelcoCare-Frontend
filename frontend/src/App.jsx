@@ -22,6 +22,8 @@ import Categories from "./pages/Category/Categories";
 import Reports from "./pages/Reports/Reports";
 import Settings from "./pages/Settings/Settings";
 
+import Register from "./pages/Auth/Register";
+
 function Layout({ children }) {
   return (
     <div className="app">
@@ -45,6 +47,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/dashboard"
