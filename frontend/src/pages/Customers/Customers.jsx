@@ -106,7 +106,6 @@ function Customers() {
     );
   };
 
-
   const handleStatusFilterChange = (status) => {
     setStatusFilter(status);
     setShowStatusMenu(false);
@@ -161,13 +160,16 @@ function Customers() {
     );
   };
 
-
   useEffect(() => {
-    loadCustomers(1);
-    loadStatusOptions();
-    loadProvinces();
-  }, []);
+    const init = async () => {
+      await loadCustomers(1, "", "ALL", "", "", "ALL");
+      await loadStatusOptions();
+      await loadProvinces();
+    };
 
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const openStatusModal = async (customer) => {
     setSelectedCustomer(customer);
@@ -258,7 +260,6 @@ function Customers() {
             >
               {selectedProvinceName}
             </button>
-            
 
             {showProvinceMenu && (
               <div className="status-filter-menu">
@@ -426,129 +427,129 @@ function Customers() {
       </div>
 
       {selectedCustomer && (
-  <div className="modal-overlay">
-    <div className="status-modal">
-      <div className="status-modal-header">
-        <div>
-          <h2>Change Customer Status</h2>
-          <p>
-            {selectedCustomer.firstName} {selectedCustomer.lastName}
-          </p>
-        </div>
+        <div className="modal-overlay">
+          <div className="status-modal">
+            <div className="status-modal-header">
+              <div>
+                <h2>Change Customer Status</h2>
+                <p>
+                  {selectedCustomer.firstName} {selectedCustomer.lastName}
+                </p>
+              </div>
 
-        <button
-          className="modal-close-btn"
-          onClick={() => setSelectedCustomer(null)}
-        >
-          ×
-        </button>
-      </div>
-
-      {statusError && <div className="form-error">{statusError}</div>}
-
-      <div className="status-form-grid">
-        <div>
-          <label>Status</label>
-          <select
-            value={newStatus}
-            onChange={(e) => {
-              setNewStatus(e.target.value);
-              setInactiveReason("");
-              setSuspendedReason("");
-            }}
-          >
-            {statuses.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.displayName}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label>Note</label>
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Optional note..."
-          />
-        </div>
-      </div>
-
-      {newStatus === "INACTIVE" && (
-        <>
-          <label>Inactive Reason</label>
-          <select
-            value={inactiveReason}
-            onChange={(e) => setInactiveReason(e.target.value)}
-          >
-            <option value="">Select reason</option>
-            {inactiveReasons.map((reason) => (
-              <option key={reason.value} value={reason.value}>
-                {reason.displayName}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-
-      {newStatus === "SUSPENDED" && (
-        <>
-          <label>Suspended Reason</label>
-          <select
-            value={suspendedReason}
-            onChange={(e) => setSuspendedReason(e.target.value)}
-          >
-            <option value="">Select reason</option>
-            {suspendedReasons.map((reason) => (
-              <option key={reason.value} value={reason.value}>
-                {reason.displayName}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-
-      <div className="status-history-preview">
-        <div className="status-history-title">
-          <strong>Status History</strong>
-          <button
-            type="button"
-            onClick={() =>
-              navigate(`/customers/${selectedCustomer.id}/status-history`)
-            }
-          >
-            View all
-          </button>
-        </div>
-
-        {statusHistory.length === 0 ? (
-          <p>No status history found.</p>
-        ) : (
-          statusHistory.slice(0, 3).map((item) => (
-            <div className="status-history-item" key={item.id}>
-              <span>
-                {item.oldStatus} → {item.newStatus}
-              </span>
-              <small>
-                {item.changedAt
-                  ? new Date(item.changedAt).toLocaleString()
-                  : "-"}
-              </small>
+              <button
+                className="modal-close-btn"
+                onClick={() => setSelectedCustomer(null)}
+              >
+                ×
+              </button>
             </div>
-          ))
-        )}
-      </div>
 
-      <div className="modal-actions">
-        <button onClick={() => setSelectedCustomer(null)}>Cancel</button>
-        <button className="primary-btn" onClick={submitStatusChange}>
-          Save
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            {statusError && <div className="form-error">{statusError}</div>}
+
+            <div className="status-form-grid">
+              <div>
+                <label>Status</label>
+                <select
+                  value={newStatus}
+                  onChange={(e) => {
+                    setNewStatus(e.target.value);
+                    setInactiveReason("");
+                    setSuspendedReason("");
+                  }}
+                >
+                  {statuses.map((status) => (
+                    <option key={status.value} value={status.value}>
+                      {status.displayName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label>Note</label>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Optional note..."
+                />
+              </div>
+            </div>
+
+            {newStatus === "INACTIVE" && (
+              <>
+                <label>Inactive Reason</label>
+                <select
+                  value={inactiveReason}
+                  onChange={(e) => setInactiveReason(e.target.value)}
+                >
+                  <option value="">Select reason</option>
+                  {inactiveReasons.map((reason) => (
+                    <option key={reason.value} value={reason.value}>
+                      {reason.displayName}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            {newStatus === "SUSPENDED" && (
+              <>
+                <label>Suspended Reason</label>
+                <select
+                  value={suspendedReason}
+                  onChange={(e) => setSuspendedReason(e.target.value)}
+                >
+                  <option value="">Select reason</option>
+                  {suspendedReasons.map((reason) => (
+                    <option key={reason.value} value={reason.value}>
+                      {reason.displayName}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            <div className="status-history-preview">
+              <div className="status-history-title">
+                <strong>Status History</strong>
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(`/customers/${selectedCustomer.id}/status-history`)
+                  }
+                >
+                  View all
+                </button>
+              </div>
+
+              {statusHistory.length === 0 ? (
+                <p>No status history found.</p>
+              ) : (
+                statusHistory.slice(0, 3).map((item) => (
+                  <div className="status-history-item" key={item.id}>
+                    <span>
+                      {item.oldStatus} → {item.newStatus}
+                    </span>
+                    <small>
+                      {item.changedAt
+                        ? new Date(item.changedAt).toLocaleString()
+                        : "-"}
+                    </small>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={() => setSelectedCustomer(null)}>Cancel</button>
+              <button className="primary-btn" onClick={submitStatusChange}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
