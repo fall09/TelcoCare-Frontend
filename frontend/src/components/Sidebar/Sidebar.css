@@ -162,3 +162,20 @@
 .menu-item {
   text-decoration: none;
 }
+
+.logout-btn {
+  width: calc(100% - 24px);
+  margin: 16px 12px 20px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: #ef4444;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}

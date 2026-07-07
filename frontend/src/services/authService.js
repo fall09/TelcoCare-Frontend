@@ -29,3 +29,15 @@ export async function loginEmployee(payload) {
 
   return response.json();
 }
+
+export async function logoutEmployee() {
+  await fetch(`${BASE_URL}/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("employee");
+}

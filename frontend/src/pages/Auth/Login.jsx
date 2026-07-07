@@ -31,7 +31,7 @@ function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("employee", JSON.stringify(data.employee));
 
-      navigate("/dashboard");
+      navigate("/customers");
     } catch (err) {
       alert(err.message);
     }
