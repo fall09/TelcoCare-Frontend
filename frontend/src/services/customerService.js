@@ -1,15 +1,28 @@
 const BASE_URL = "http://localhost:8080/api/customers";
 
-export async function getCustomers(search = "") {
-  const url = search
-    ? `${BASE_URL}?search=${search}`
-    : BASE_URL;
+export async function getCustomers(
+  page = 0,
+  size = 15,
+  search = "",
+  status = "ALL",
+  provinceId = "",
+  districtId = "",
+  hasTicket = "ALL"
+) {
+  const params = new URLSearchParams();
 
-  const response = await fetch(url);
+  params.append("page", page);
+  params.append("size", size);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch customers");
-  }
+  if (search && search.trim() !== "") params.append("search", search.trim());
+  if (status && status !== "ALL") params.append("status", status);
+  if (provinceId) params.append("provinceId", provinceId);
+  if (districtId) params.append("districtId", districtId);
+  if (hasTicket !== "ALL") params.append("hasTicket", hasTicket);
+
+  const response = await fetch(`${BASE_URL}?${params.toString()}`);
+
+  if (!response.ok) throw new Error("Failed to fetch customers");
 
   return response.json();
 }
@@ -17,9 +30,7 @@ export async function getCustomers(search = "") {
 export async function createCustomer(customer) {
   const response = await fetch(BASE_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(customer),
   });
 
@@ -32,11 +43,9 @@ export async function createCustomer(customer) {
 }
 
 export async function updateCustomerStatus(customerId, payload) {
-  const response = await fetch(`http://localhost:8080/api/customers/${customerId}/status`, {
+  const response = await fetch(`${BASE_URL}/${customerId}/status`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
@@ -49,13 +58,51 @@ export async function updateCustomerStatus(customerId, payload) {
 }
 
 export async function getCustomerStatusHistory(customerId) {
-  const response = await fetch(
-    `http://localhost:8080/api/customers/${customerId}/status-history`
-  );
+  const response = await fetch(`${BASE_URL}/${customerId}/status-history`);
 
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to fetch status history");
+  }
+
+  return response.json();
+}
+
+
+
+export async function getCustomerById(customerId) {
+  const response = await fetch(`${BASE_URL}/${customerId}`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to fetch customer");
+  }
+
+  return response.json();
+}
+
+export async function updateCustomer(customerId, customer) {
+  const response = await fetch(`${BASE_URL}/${customerId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(customer),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update customer");
+  }
+
+  return response.json();
+}
+
+export async function getCustomerTickets(customerId) {
+  const response = await fetch(
+    `${BASE_URL}/${customerId}/tickets`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch customer tickets");
   }
 
   return response.json();
