@@ -93,14 +93,6 @@ function Customers() {
     setProvinces(await getProvinces());
   };
 
-  useEffect(() => {
-    loadCustomers(1);
-    loadStatusOptions();
-    loadProvinces();
-  }, []);
-
-  
-
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -113,6 +105,15 @@ function Customers() {
       hasTicketFilter,
     );
   };
+
+  useEffect(() => {
+    loadCustomers(1);
+    loadStatusOptions();
+    loadProvinces();
+  }, []);
+
+  
+
 
   const handleStatusFilterChange = (status) => {
     setStatusFilter(status);
