@@ -56,7 +56,16 @@ const Dashboard = () => {
 
   // General KPIs computation
   const totalCustomersCount = useMemo(() => {
-    return filteredCustomers.filter((c) => c.status === "ACTIVE").length;
+      console.log("filteredCustomers:", filteredCustomers);
+      console.log("Is Array:", Array.isArray(filteredCustomers));
+
+      if (!Array.isArray(filteredCustomers)) {
+        return 0;
+      }
+
+      return filteredCustomers.filter(
+        (c) => c.status === "ACTIVE"
+      ).length;
   }, [filteredCustomers]);
 
   const totalTicketsCount = filteredTickets.length;
