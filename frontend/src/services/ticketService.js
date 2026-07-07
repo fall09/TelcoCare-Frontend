@@ -1,7 +1,18 @@
 const BASE_URL = "http://localhost:8080/api/tickets";
 
+function authHeaders(json = false) {
+  const token = localStorage.getItem("token");
+
+  return {
+    ...(json && { "Content-Type": "application/json" }),
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function getTickets() {
-  const response = await fetch(BASE_URL);
+  const response = await fetch(BASE_URL, {
+    headers: authHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch tickets");
@@ -13,7 +24,7 @@ export async function getTickets() {
 export async function createTicket(payload) {
   const response = await fetch(BASE_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(true),
     body: JSON.stringify(payload),
   });
 
@@ -23,12 +34,4 @@ export async function createTicket(payload) {
   }
 
   return response.json();
-}
-function authHeaders() {
-  const token = localStorage.getItem("token");
-
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
 }
