@@ -24,3 +24,11 @@ export async function createTicket(payload) {
 
   return response.json();
 }
+function authHeaders() {
+  const token = localStorage.getItem("token");
+
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}

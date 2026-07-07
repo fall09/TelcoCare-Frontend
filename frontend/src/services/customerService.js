@@ -1,5 +1,14 @@
 const BASE_URL = "http://localhost:8080/api/customers";
 
+function authHeaders(json = false) {
+  const token = localStorage.getItem("token");
+
+  return {
+    ...(json && { "Content-Type": "application/json" }),
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function getCustomers(
   page = 0,
   size = 15,
@@ -20,7 +29,9 @@ export async function getCustomers(
   if (districtId) params.append("districtId", districtId);
   if (hasTicket !== "ALL") params.append("hasTicket", hasTicket);
 
-  const response = await fetch(`${BASE_URL}?${params.toString()}`);
+  const response = await fetch(`${BASE_URL}?${params.toString()}`, {
+    headers: authHeaders(),
+  });
 
   if (!response.ok) throw new Error("Failed to fetch customers");
 
@@ -30,13 +41,13 @@ export async function getCustomers(
 export async function createCustomer(customer) {
   const response = await fetch(BASE_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(true),
     body: JSON.stringify(customer),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message);
+    throw new Error(error.message || "Failed to create customer");
   }
 
   return response.json();
@@ -45,7 +56,7 @@ export async function createCustomer(customer) {
 export async function updateCustomerStatus(customerId, payload) {
   const response = await fetch(`${BASE_URL}/${customerId}/status`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(true),
     body: JSON.stringify(payload),
   });
 
@@ -58,7 +69,9 @@ export async function updateCustomerStatus(customerId, payload) {
 }
 
 export async function getCustomerStatusHistory(customerId) {
-  const response = await fetch(`${BASE_URL}/${customerId}/status-history`);
+  const response = await fetch(`${BASE_URL}/${customerId}/status-history`, {
+    headers: authHeaders(),
+  });
 
   if (!response.ok) {
     const error = await response.json();
@@ -68,10 +81,10 @@ export async function getCustomerStatusHistory(customerId) {
   return response.json();
 }
 
-
-
 export async function getCustomerById(customerId) {
-  const response = await fetch(`${BASE_URL}/${customerId}`);
+  const response = await fetch(`${BASE_URL}/${customerId}`, {
+    headers: authHeaders(),
+  });
 
   if (!response.ok) {
     const error = await response.json();
@@ -84,7 +97,7 @@ export async function getCustomerById(customerId) {
 export async function updateCustomer(customerId, customer) {
   const response = await fetch(`${BASE_URL}/${customerId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(true),
     body: JSON.stringify(customer),
   });
 
@@ -97,9 +110,9 @@ export async function updateCustomer(customerId, customer) {
 }
 
 export async function getCustomerTickets(customerId) {
-  const response = await fetch(
-    `${BASE_URL}/${customerId}/tickets`
-  );
+  const response = await fetch(`${BASE_URL}/${customerId}/tickets`, {
+    headers: authHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch customer tickets");

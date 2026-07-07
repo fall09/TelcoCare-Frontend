@@ -14,3 +14,12 @@ export async function getSuspendedReasons() {
   const response = await fetch(`${BASE_URL}/suspended-reasons`);
   return response.json();
 }
+
+function authHeaders() {
+  const token = localStorage.getItem("token");
+
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
