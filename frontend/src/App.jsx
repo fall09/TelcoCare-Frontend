@@ -41,6 +41,7 @@ function ProtectedPage({ children }) {
   );
 }
 
+
 function App() {
   return (
     <BrowserRouter>
