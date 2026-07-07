@@ -11,6 +11,8 @@ import CreateTicket from "./pages/CreateTicket/CreateTicket";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
+import UpdateCustomer from "./pages/UpdateCustomer/UpdateCustomer";
+import CustomerTickets from "./pages/CustomerTickets/CustomerTickets";
 
 function App() {
   return (
@@ -23,13 +25,21 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/customers/new" element={<CreateCustomer />} />
-            <Route path="/customers/:id/status-history" element={<CustomerStatusHistory />} />
+            <Route
+              path="/customers/:id/status-history"
+              element={<CustomerStatusHistory />}
+            />
             <Route path="/categories" element={<Categories />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/tickets/new" element={<CreateTicket />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/customers/:id/edit" element={<UpdateCustomer />} />
+            <Route
+              path="/customers/:id/tickets"
+              element={<CustomerTickets />}
+            />
           </Routes>
         </main>
       </div>

@@ -51,3 +51,17 @@ export async function updateSubCategory(subCategoryId, payload) {
 
   return response.json();
 }
+export async function updateCustomer(customerId, customer) {
+  const response = await fetch(`${BASE_URL}/${customerId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(customer),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update customer");
+  }
+
+  return response.json();
+}
