@@ -54,12 +54,6 @@ function Customers() {
 
   const [statusHistory, setStatusHistory] = useState([]);
 
-  useEffect(() => {
-    loadCustomers(1);
-    loadStatusOptions();
-    loadProvinces();
-  }, []);
-
   const loadCustomers = async (
     page = 1,
     searchText = search,
@@ -98,6 +92,14 @@ function Customers() {
   const loadProvinces = async () => {
     setProvinces(await getProvinces());
   };
+
+  useEffect(() => {
+    loadCustomers(1);
+    loadStatusOptions();
+    loadProvinces();
+  }, []);
+
+  
 
   const handleSearch = (e) => {
     const value = e.target.value;
