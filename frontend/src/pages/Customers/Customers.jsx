@@ -106,14 +106,6 @@ function Customers() {
     );
   };
 
-  useEffect(() => {
-    loadCustomers(1);
-    loadStatusOptions();
-    loadProvinces();
-  }, []);
-
-  
-
 
   const handleStatusFilterChange = (status) => {
     setStatusFilter(status);
@@ -168,6 +160,14 @@ function Customers() {
       value,
     );
   };
+
+
+  useEffect(() => {
+    loadCustomers(1);
+    loadStatusOptions();
+    loadProvinces();
+  }, []);
+
 
   const openStatusModal = async (customer) => {
     setSelectedCustomer(customer);
