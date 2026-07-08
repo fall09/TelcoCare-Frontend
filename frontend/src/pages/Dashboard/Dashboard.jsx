@@ -152,22 +152,22 @@ const Dashboard = () => {
     return provinceData;
   }, [tickets, customers]);
 
-  // Trend Chart Data (Last 7 days ticket count)
+  // Trend Chart Data (Last 30 days ticket count)
   const trendChartData = useMemo(() => {
     const trendMap = {};
     const now = new Date();
 
-    // Initialize last 7 days with 0
+    // Initialize last 30 days with 0
     for (let i = 29; i >= 0; i--) {
       const d = new Date();
       d.setDate(now.getDate() - i);
-      const dateKey = d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+      const dateKey = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
       trendMap[dateKey] = 0;
     }
 
     filteredTickets.forEach((t) => {
       if (!t.createdAt) return;
-      const dateKey = new Date(t.createdAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+      const dateKey = new Date(t.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short" });
       if (trendMap[dateKey] !== undefined) {
         trendMap[dateKey] += 1;
       }
@@ -195,7 +195,7 @@ const Dashboard = () => {
           <p>
             {selectedProvince
               ? `${selectedProvince.name} ili detaylı telecom arıza ve müşteri verileri.`
-              : "Türkiye genel durumu, bilet yoğunluk haritası ve genel performans metrikleri."}
+              : "Türkiye's overall situation, ticket density map, and general performance metrics."}
           </p>
         </div>
       </div>
@@ -299,7 +299,7 @@ const Dashboard = () => {
           {/* Critical Tickets Card */}
           <div className="recent-tickets-card">
             <div className="recent-tickets-header">
-              <h3>Critical Alerts</h3>
+              <h3>Critical Tickets</h3>
               <p>Recent high priority and critical tickets</p>
             </div>
             <div className="tickets-list">
