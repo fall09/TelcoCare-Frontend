@@ -15,6 +15,7 @@ import CustomerTickets from "./pages/CustomerTickets/CustomerTickets";
 import CustomerStatusHistory from "./pages/CustomerStatusHistory/CustomerStatusHistory";
 
 import Tickets from "./pages/Tickets/Tickets";
+import MyTickets from "./pages/MyTickets/MyTickets";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
 import TicketDetail from "./pages/Tickets/TicketDetail";
 
@@ -41,14 +42,13 @@ function ProtectedPage({ children }) {
   );
 }
 
-
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> 
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/dashboard"
@@ -109,6 +109,15 @@ function App() {
           element={
             <ProtectedPage>
               <Tickets />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/my-tickets"
+          element={
+            <ProtectedPage>
+              <MyTickets />
             </ProtectedPage>
           }
         />

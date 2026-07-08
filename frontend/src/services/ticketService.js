@@ -20,6 +20,17 @@ export async function getTickets() {
 
   return response.json();
 }
+export async function getMyTickets() {
+  const response = await fetch(`${BASE_URL}/my`, {
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch my tickets");
+  }
+
+  return response.json();
+}
 
 export async function getTicketById(id) {
   const response = await fetch(`${BASE_URL}/${id}`, {

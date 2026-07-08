@@ -45,6 +45,14 @@ const Sidebar = () => {
         >
           Tickets
         </NavLink>
+        <NavLink
+          to="/my-tickets"
+          className={({ isActive }) =>
+            isActive ? "menu-item active" : "menu-item"
+          }
+        >
+          My Tickets
+        </NavLink>
 
         <NavLink
           to="/customers"
