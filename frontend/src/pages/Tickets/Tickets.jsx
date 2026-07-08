@@ -8,9 +8,9 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import "./Tickets.css";
 import { useNavigate } from "react-router-dom";
 import { getTickets, takeTicket } from "../../services/ticketService";
+import "./Tickets.css";
 
 const chartColors = {
   OPEN: "#2563eb",
@@ -21,6 +21,8 @@ const chartColors = {
   MEDIUM: "#f59e0b",
   HIGH: "#ef4444",
   CRITICAL: "#111827",
+  Assigned: "#2563eb",
+  Unassigned: "#f59e0b",
   Internet: "#2563eb",
   Mobile: "#7c3aed",
   Billing: "#f59e0b",
@@ -51,7 +53,7 @@ function Tickets() {
 
   const loadTickets = async () => {
     const data = await getTickets();
-    setTickets(data);
+    setTickets(Array.isArray(data) ? data : []);
   };
 
   const handleTakeTicket = async (e, ticketId) => {
@@ -73,7 +75,8 @@ function Tickets() {
       ticket.customerName?.toLowerCase().includes(keyword) ||
       ticket.customerPhone?.includes(search) ||
       ticket.category?.toLowerCase().includes(keyword) ||
-      ticket.subCategory?.toLowerCase().includes(keyword);
+      ticket.subCategory?.toLowerCase().includes(keyword) ||
+      ticket.assignedEmployeeName?.toLowerCase().includes(keyword);
 
     const matchesStatus =
       statusFilter === "ALL" || ticket.status === statusFilter;
@@ -84,9 +87,11 @@ function Tickets() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const totalPages = Math.ceil(filteredTickets.length / rowsPerPage);
+  const sortedTickets = [...filteredTickets].sort((a, b) => a.id - b.id);
+
+  const totalPages = Math.ceil(sortedTickets.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentTickets = filteredTickets.slice(
+  const currentTickets = sortedTickets.slice(
     startIndex,
     startIndex + rowsPerPage
   );
@@ -94,14 +99,15 @@ function Tickets() {
   const countByStatus = (status) =>
     tickets.filter((ticket) => ticket.status === status).length;
 
+  const assignedCount = tickets.filter((ticket) => ticket.assignedEmployeeId).length;
+  const unassignedCount = tickets.filter((ticket) => !ticket.assignedEmployeeId).length;
+
   const criticalCount = tickets.filter(
     (ticket) => ticket.priority === "CRITICAL"
   ).length;
 
   const resolvedCount = countByStatus("RESOLVED") + countByStatus("CLOSED");
-
-  const unresolvedCount =
-    countByStatus("OPEN") + countByStatus("IN_PROGRESS");
+  const unresolvedCount = countByStatus("OPEN") + countByStatus("IN_PROGRESS");
 
   const criticalInProgressCount = tickets.filter(
     (ticket) =>
@@ -131,6 +137,13 @@ function Tickets() {
     if (chartMode === "STATUS") return buildCountData(tickets, "status");
     if (chartMode === "PRIORITY") return buildCountData(tickets, "priority");
 
+    if (chartMode === "ASSIGNMENT") {
+      return [
+        { name: "Assigned", value: assignedCount },
+        { name: "Unassigned", value: unassignedCount },
+      ];
+    }
+
     if (chartMode === "CRITICAL_CATEGORY") {
       return buildCountData(
         tickets.filter((ticket) => ticket.priority === "CRITICAL"),
@@ -158,10 +171,12 @@ function Tickets() {
   const getChartTitle = () => {
     if (chartMode === "STATUS") return "Ticket Status Distribution";
     if (chartMode === "PRIORITY") return "Ticket Priority Distribution";
+    if (chartMode === "ASSIGNMENT") return "Ticket Assignment Distribution";
     if (chartMode === "CRITICAL_CATEGORY") return "Critical Tickets by Category";
     if (chartMode === "OPEN_CATEGORY") return "Open Tickets by Category";
     if (chartMode === "IN_PROGRESS_CATEGORY")
       return "In Progress Tickets by Category";
+
     return "Ticket Analytics";
   };
 
@@ -184,7 +199,10 @@ function Tickets() {
       </div>
 
       <div className="ticket-stats">
-        <button className="ticket-stat-card" onClick={() => setChartMode("STATUS")}>
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("STATUS")}
+        >
           <div className="ticket-stat-icon blue">
             <Ticket size={22} />
           </div>
@@ -194,7 +212,10 @@ function Tickets() {
           </div>
         </button>
 
-        <button className="ticket-stat-card" onClick={() => setChartMode("OPEN_CATEGORY")}>
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("OPEN_CATEGORY")}
+        >
           <div className="ticket-stat-icon orange">
             <Clock size={22} />
           </div>
@@ -204,7 +225,10 @@ function Tickets() {
           </div>
         </button>
 
-        <button className="ticket-stat-card" onClick={() => setChartMode("PRIORITY")}>
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("PRIORITY")}
+        >
           <div className="ticket-stat-icon green">
             <CheckCircle2 size={22} />
           </div>
@@ -214,7 +238,10 @@ function Tickets() {
           </div>
         </button>
 
-        <button className="ticket-stat-card" onClick={() => setChartMode("CRITICAL_CATEGORY")}>
+        <button
+          className="ticket-stat-card"
+          onClick={() => setChartMode("CRITICAL_CATEGORY")}
+        >
           <div className="ticket-stat-icon red">
             <AlertCircle size={22} />
           </div>
@@ -233,19 +260,45 @@ function Tickets() {
           </div>
 
           <div className="analytics-tabs">
-            <button className={chartMode === "STATUS" ? "active" : ""} onClick={() => setChartMode("STATUS")}>
+            <button
+              className={chartMode === "STATUS" ? "active" : ""}
+              onClick={() => setChartMode("STATUS")}
+            >
               Status
             </button>
-            <button className={chartMode === "PRIORITY" ? "active" : ""} onClick={() => setChartMode("PRIORITY")}>
+
+            <button
+              className={chartMode === "PRIORITY" ? "active" : ""}
+              onClick={() => setChartMode("PRIORITY")}
+            >
               Priority
             </button>
-            <button className={chartMode === "OPEN_CATEGORY" ? "active" : ""} onClick={() => setChartMode("OPEN_CATEGORY")}>
+
+            <button
+              className={chartMode === "ASSIGNMENT" ? "active" : ""}
+              onClick={() => setChartMode("ASSIGNMENT")}
+            >
+              Assignment
+            </button>
+
+            <button
+              className={chartMode === "OPEN_CATEGORY" ? "active" : ""}
+              onClick={() => setChartMode("OPEN_CATEGORY")}
+            >
               Open
             </button>
-            <button className={chartMode === "IN_PROGRESS_CATEGORY" ? "active" : ""} onClick={() => setChartMode("IN_PROGRESS_CATEGORY")}>
+
+            <button
+              className={chartMode === "IN_PROGRESS_CATEGORY" ? "active" : ""}
+              onClick={() => setChartMode("IN_PROGRESS_CATEGORY")}
+            >
               In Progress
             </button>
-            <button className={chartMode === "CRITICAL_CATEGORY" ? "active" : ""} onClick={() => setChartMode("CRITICAL_CATEGORY")}>
+
+            <button
+              className={chartMode === "CRITICAL_CATEGORY" ? "active" : ""}
+              onClick={() => setChartMode("CRITICAL_CATEGORY")}
+            >
               Critical
             </button>
           </div>
@@ -270,7 +323,9 @@ function Tickets() {
                     />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value, name) => [`${value} tickets`, name]} />
+                <Tooltip
+                  formatter={(value, name) => [`${value} tickets`, name]}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -281,14 +336,27 @@ function Tickets() {
               <span>Open</span>
               <strong>{countByStatus("OPEN")}</strong>
             </div>
+
             <div>
               <span>In Progress</span>
               <strong>{countByStatus("IN_PROGRESS")}</strong>
             </div>
+
+            <div>
+              <span>Assigned</span>
+              <strong>{assignedCount}</strong>
+            </div>
+
+            <div>
+              <span>Unassigned</span>
+              <strong>{unassignedCount}</strong>
+            </div>
+
             <div>
               <span>Critical In Progress</span>
               <strong>{criticalInProgressCount}</strong>
             </div>
+
             <div>
               <span>Non-Critical In Progress</span>
               <strong>{nonCriticalInProgressCount}</strong>
@@ -306,7 +374,7 @@ function Tickets() {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Search by ticket no, customer, phone, category..."
+            placeholder="Search by ticket no, customer, phone, category, assignee..."
           />
         </div>
 
@@ -340,6 +408,16 @@ function Tickets() {
       </div>
 
       <div className="tickets-table-card">
+        <div className="ticket-pool-title">
+          <div>
+            <h2>Ticket Pool</h2>
+            <p>
+              Tickets are sorted by ticket ID. Assigned tickets show the owner;
+              unassigned tickets can be taken.
+            </p>
+          </div>
+        </div>
+
         <div className="tickets-table-header">
           <div>Ticket No</div>
           <div>Customer</div>
@@ -348,7 +426,7 @@ function Tickets() {
           <div>Priority</div>
           <div>Status</div>
           <div>Created</div>
-          <div>Action</div>
+          <div>Assignment</div>
         </div>
 
         {currentTickets.map((ticket) => (
@@ -368,7 +446,9 @@ function Tickets() {
             <div>{ticket.subCategory}</div>
 
             <div>
-              <span className={`ticket-priority ${ticket.priority.toLowerCase()}`}>
+              <span
+                className={`ticket-priority ${ticket.priority.toLowerCase()}`}
+              >
                 {ticket.priority}
               </span>
             </div>
@@ -411,7 +491,9 @@ function Tickets() {
           Previous
         </button>
 
-        <span>Page {currentPage} of {totalPages || 1}</span>
+        <span>
+          Page {currentPage} of {totalPages || 1}
+        </span>
 
         <button
           disabled={currentPage === totalPages || totalPages === 0}

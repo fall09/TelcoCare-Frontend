@@ -2,11 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CreateTicket.css";
 
-import { getCustomers } from "../../services/customerService";
-import {
-  getCategories,
-  getSubCategories,
-} from "../../services/categoryService";
+import { getCustomers, createCustomer } from "../../services/customerService";
+import { getCategories, getSubCategories } from "../../services/categoryService";
 import { createTicket } from "../../services/ticketService";
 import {
   getProvinces,
@@ -25,15 +22,30 @@ function CreateTicket() {
 
   const [categoryId, setCategoryId] = useState("");
   const [subCategoryId, setSubCategoryId] = useState("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+
+  const [priority, setPriority] = useState("MEDIUM");
+  const [assignToMe, setAssignToMe] = useState(false);
+
   const [provinceId, setProvinceId] = useState("");
   const [districtId, setDistrictId] = useState("");
   const [description, setDescription] = useState("");
-
-  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [error, setError] = useState("");
 
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
+
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [newCustomerDistricts, setNewCustomerDistricts] = useState([]);
+
+  const [newCustomer, setNewCustomer] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    email: "",
+    provinceId: "",
+    districtId: "",
+  });
 
   useEffect(() => {
     loadInitialData();
@@ -41,7 +53,6 @@ function CreateTicket() {
 
   const loadInitialData = async () => {
     const customerData = await getCustomers(0, 1000);
-
     setCustomers(customerData.content || []);
     setCategories(await getCategories());
     setProvinces(await getProvinces());
@@ -56,8 +67,59 @@ function CreateTicket() {
       return;
     }
 
-    const data = await getDistrictsByProvince(value);
-    setDistricts(data);
+    setDistricts(await getDistrictsByProvince(value));
+  };
+
+  const handleNewCustomerProvinceChange = async (value) => {
+    setNewCustomer((prev) => ({
+      ...prev,
+      provinceId: value,
+      districtId: "",
+    }));
+
+    if (!value) {
+      setNewCustomerDistricts([]);
+      return;
+    }
+
+    setNewCustomerDistricts(await getDistrictsByProvince(value));
+  };
+
+  const handleCreateCustomer = async () => {
+    try {
+      setError("");
+
+      const created = await createCustomer({
+        firstName: newCustomer.firstName,
+        lastName: newCustomer.lastName,
+        phoneNumber: newCustomer.phoneNumber,
+        email: newCustomer.email,
+        provinceId: Number(newCustomer.provinceId),
+        districtId: Number(newCustomer.districtId),
+        status: "POTENTIAL"
+      });
+
+      setCustomers((prev) => [created, ...prev]);
+      setSelectedCustomer(created);
+
+      setCustomerSearch(
+        `#${created.id} - ${created.firstName} ${created.lastName} - ${created.phoneNumber}`
+      );
+
+      setNewCustomer({
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        email: "",
+        provinceId: "",
+        districtId: "",
+      });
+
+      setNewCustomerDistricts([]);
+      setShowCustomerModal(false);
+    } catch (err) {
+      setError(err.message || "Customer could not be created.");
+    }
   };
 
   const filteredCustomers = customers
@@ -77,26 +139,30 @@ function CreateTicket() {
     setCategoryId(value);
     setSubCategoryId("");
     setSelectedSubCategory(null);
+    setPriority("MEDIUM");
     setProvinceId("");
     setDistrictId("");
+    setDistricts([]);
 
     if (!value) {
       setSubCategories([]);
       return;
     }
 
-    const data = await getSubCategories(value);
-    setSubCategories(data);
+    setSubCategories(await getSubCategories(value));
   };
 
   const handleSubCategoryChange = (value) => {
     setSubCategoryId(value);
 
     const sub = subCategories.find((item) => item.id === Number(value));
+
     setSelectedSubCategory(sub || null);
+    setPriority(sub?.defaultPriority || "MEDIUM");
 
     setProvinceId("");
     setDistrictId("");
+    setDistricts([]);
   };
 
   const handleSubmit = async (e) => {
@@ -115,6 +181,8 @@ function CreateTicket() {
         districtId: selectedSubCategory?.locationRequired
           ? Number(districtId)
           : null,
+        priority,
+        assignToMe,
         description,
       });
 
@@ -140,15 +208,26 @@ function CreateTicket() {
 
         <form onSubmit={handleSubmit}>
           <label>Customer</label>
-          <input
-            value={customerSearch}
-            onChange={(e) => {
-              setCustomerSearch(e.target.value);
-              setSelectedCustomer(null);
-            }}
-            placeholder="Search by name, surname, phone or ID..."
-            required
-          />
+
+          <div className="customer-search-wrapper">
+            <input
+              value={customerSearch}
+              onChange={(e) => {
+                setCustomerSearch(e.target.value);
+                setSelectedCustomer(null);
+              }}
+              placeholder="Search by name, surname, phone or ID..."
+              required
+            />
+
+            <button
+              type="button"
+              className="add-customer-btn"
+              onClick={() => setShowCustomerModal(true)}
+            >
+              +
+            </button>
+          </div>
 
           {customerSearch && !selectedCustomer && (
             <div className="customer-search-results">
@@ -212,6 +291,50 @@ function CreateTicket() {
             ))}
           </select>
 
+          {selectedSubCategory && (
+            <div className="ticket-preview">
+              <span>
+                Default Priority:{" "}
+                <strong>{selectedSubCategory.defaultPriority}</strong>
+              </span>
+              <span>
+                Location Required:{" "}
+                <strong>
+                  {selectedSubCategory.locationRequired ? "Yes" : "No"}
+                </strong>
+              </span>
+            </div>
+          )}
+
+          <label>Priority</label>
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            required
+          >
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+            <option value="CRITICAL">Critical</option>
+          </select>
+
+          <div className="assign-toggle-row">
+            <div>
+              <strong>Assign to me</strong>
+              <span>
+                If enabled, this ticket will be assigned to you immediately.
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className={`assign-toggle ${assignToMe ? "on" : ""}`}
+              onClick={() => setAssignToMe((prev) => !prev)}
+            >
+              <span />
+            </button>
+          </div>
+
           {selectedSubCategory?.locationRequired && (
             <div className="location-grid">
               <div>
@@ -269,6 +392,7 @@ function CreateTicket() {
             <button type="button" onClick={() => navigate("/tickets")}>
               Cancel
             </button>
+
             <button
               type="submit"
               className="primary-btn"
@@ -279,6 +403,89 @@ function CreateTicket() {
           </div>
         </form>
       </div>
+
+      {showCustomerModal && (
+        <div className="customer-modal-overlay">
+          <div className="customer-modal">
+            <h2>New Customer</h2>
+
+            <input
+              placeholder="First Name"
+              value={newCustomer.firstName}
+              onChange={(e) =>
+                setNewCustomer({ ...newCustomer, firstName: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Last Name"
+              value={newCustomer.lastName}
+              onChange={(e) =>
+                setNewCustomer({ ...newCustomer, lastName: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Phone"
+              value={newCustomer.phoneNumber}
+              onChange={(e) =>
+                setNewCustomer({ ...newCustomer, phoneNumber: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Email"
+              value={newCustomer.email}
+              onChange={(e) =>
+                setNewCustomer({ ...newCustomer, email: e.target.value })
+              }
+            />
+
+            <select
+              value={newCustomer.provinceId}
+              onChange={(e) => handleNewCustomerProvinceChange(e.target.value)}
+            >
+              <option value="">Select Province</option>
+              {provinces.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={newCustomer.districtId}
+              onChange={(e) =>
+                setNewCustomer({
+                  ...newCustomer,
+                  districtId: e.target.value,
+                })
+              }
+              disabled={!newCustomer.provinceId}
+            >
+              <option value="">Select District</option>
+              {newCustomerDistricts.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+
+            <div className="modal-buttons">
+              <button
+                type="button"
+                onClick={() => setShowCustomerModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button type="button" onClick={handleCreateCustomer}>
+                Save Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

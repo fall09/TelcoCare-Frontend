@@ -478,3 +478,7 @@
   background: #2f6bff;
   color: white;
 }
+.customer-status.potential {
+  background: #e0f2fe;
+  color: #0369a1;
+}

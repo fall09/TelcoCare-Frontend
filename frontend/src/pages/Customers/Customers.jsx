@@ -352,6 +352,9 @@ function Customers() {
                 <button onClick={() => handleStatusFilterChange("SUSPENDED")}>
                   Suspended
                 </button>
+                <button onClick={() => handleStatusFilterChange("POTENTIAL")}>
+                  Potential
+                </button>
               </div>
             )}
           </div>
