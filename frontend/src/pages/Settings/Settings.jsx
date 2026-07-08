@@ -19,13 +19,6 @@ import {
 function Settings() {
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState({
-    defaultPriority: "MEDIUM",
-    defaultStatus: "OPEN",
-    locationRequiredDefault: true,
-    autoAssignTickets: false,
-  });
-
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [employee, setEmployee] = useState(null);
@@ -109,20 +102,6 @@ function Settings() {
     }
   };
 
-  const toggleSetting = (key) => {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
-  const updateSetting = (key, value) => {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -150,74 +129,11 @@ function Settings() {
       <div className="page-header">
         <div>
           <h1>Settings</h1>
-          <p>Manage ticket defaults, category priorities and your profile.</p>
+          <p>Manage category priorities and your profile.</p>
         </div>
       </div>
 
       <div className="settings-grid">
-        <section className="settings-card">
-          <div className="settings-card-header">
-            <div className="settings-icon purple">
-              <SettingsIcon size={22} />
-            </div>
-            <div>
-              <h2>Ticket Defaults</h2>
-              <p>Set default values for new tickets.</p>
-            </div>
-          </div>
-
-          <label className="setting-field">
-            <span>Default Priority</span>
-            <select
-              value={settings.defaultPriority}
-              onChange={(e) => updateSetting("defaultPriority", e.target.value)}
-            >
-              {priorityOptions}
-            </select>
-          </label>
-
-          <label className="setting-field">
-            <span>Default Status</span>
-            <select
-              value={settings.defaultStatus}
-              onChange={(e) => updateSetting("defaultStatus", e.target.value)}
-            >
-              <option value="OPEN">Open</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="CLOSED">Closed</option>
-            </select>
-          </label>
-
-          <div className="setting-row">
-            <div>
-              <strong>Location Required Default</strong>
-              <span>Use location by default when creating ticket rules.</span>
-            </div>
-            <button
-              className={`toggle ${
-                settings.locationRequiredDefault ? "on" : ""
-              }`}
-              onClick={() => toggleSetting("locationRequiredDefault")}
-            >
-              <span />
-            </button>
-          </div>
-
-          <div className="setting-row">
-            <div>
-              <strong>Auto Assign Tickets</strong>
-              <span>Automatically assign new tickets to available agents.</span>
-            </div>
-            <button
-              className={`toggle ${settings.autoAssignTickets ? "on" : ""}`}
-              onClick={() => toggleSetting("autoAssignTickets")}
-            >
-              <span />
-            </button>
-          </div>
-        </section>
-
         <section className="settings-card">
           <div className="settings-card-header">
             <div className="settings-icon orange">
