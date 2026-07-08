@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { getTickets } from "../../services/ticketService";
 import { getCustomers } from "../../services/customerService";
+import { getProvinces } from "../../services/locationService";
 import TurkeyMap from "../../components/TurkeyMap/TurkeyMap";
 import { turkeyMapPaths } from "../../components/TurkeyMap/TurkeyMapPaths";
 import "./Dashboard.css";
@@ -26,29 +27,71 @@ const Dashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState(null);
 
+  // New states for dynamic totalElements count
+  const [provinces, setProvinces] = useState([]);
+  const [activeCustomersCount, setActiveCustomersCount] = useState(0);
+  const [overallActiveCount, setOverallActiveCount] = useState(0);
+
   useEffect(() => {
     const loadDashboardData = async () => {
-  try {
-    const [ticketsData, customersData] = await Promise.all([
-      getTickets(),
-      getCustomers(),
-    ]);
+      try {
+        const [ticketsData, customersData, provincesData] = await Promise.all([
+          getTickets(),
+          getCustomers(0, 1000, "", "ACTIVE"),
+          getProvinces(),
+        ]);
 
-    setTickets(Array.isArray(ticketsData) ? ticketsData : []);
-    setCustomers(
-      Array.isArray(customersData)
-        ? customersData
-        : customersData.content || []
-    );
-  } catch (err) {
-    console.error("Failed to load dashboard data:", err);
-  }
-};
+        setTickets(Array.isArray(ticketsData) ? ticketsData : []);
+        setCustomers(customersData?.content || []);
+        setProvinces(provincesData || []);
+
+        // Retrieve exact active customer count from Page metadata
+        const total = customersData?.totalElements || 0;
+        setOverallActiveCount(total);
+        setActiveCustomersCount(total);
+      } catch (err) {
+        console.error("Failed to load dashboard data:", err);
+      }
+    };
 
     loadDashboardData();
   }, []);
 
-  // Filtered tickets/customers based on selected province
+  // Fetch active customer count for selected province dynamically
+  useEffect(() => {
+    if (!selectedProvince) {
+      // If no province selected, restore overall active count
+      setActiveCustomersCount(overallActiveCount);
+      return;
+    }
+
+    const fetchProvinceCount = async () => {
+      try {
+        let provinceId = "";
+        if (provinces.length > 0) {
+          const prov = provinces.find(
+            (p) => p.name.trim().toLocaleLowerCase("tr-TR") === selectedProvince.name.trim().toLocaleLowerCase("tr-TR")
+          );
+          if (prov) {
+            provinceId = prov.id;
+          }
+        }
+
+        if (provinceId) {
+          const data = await getCustomers(0, 1, "", "ACTIVE", provinceId);
+          setActiveCustomersCount(data?.totalElements || 0);
+        } else {
+          setActiveCustomersCount(0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch province customer count:", err);
+      }
+    };
+
+    fetchProvinceCount();
+  }, [selectedProvince, provinces, overallActiveCount]);
+
+  // Filtered tickets based on selected province
   const filteredTickets = useMemo(() => {
     if (!selectedProvince) return tickets;
     return tickets.filter((t) => matchProvince(t.issueProvince, selectedProvince.name));
@@ -58,20 +101,6 @@ const Dashboard = () => {
     if (!selectedProvince) return customers;
     return customers.filter((c) => matchProvince(c.province, selectedProvince.name));
   }, [customers, selectedProvince]);
-
-  // General KPIs computation
-  const totalCustomersCount = useMemo(() => {
-      console.log("filteredCustomers:", filteredCustomers);
-      console.log("Is Array:", Array.isArray(filteredCustomers));
-
-      if (!Array.isArray(filteredCustomers)) {
-        return 0;
-      }
-
-      return filteredCustomers.filter(
-        (c) => c.status === "ACTIVE"
-      ).length;
-  }, [filteredCustomers]);
 
   const totalTicketsCount = filteredTickets.length;
 
@@ -114,7 +143,7 @@ const Dashboard = () => {
 
       provinceData[province.plateNumber] = {
         ticketCount: provTickets.length,
-        customerCount: provCustomers.filter((c) => c.status === "ACTIVE").length,
+        customerCount: provCustomers.length,
         resolvedRatio: ratio,
         topCategory,
       };
@@ -123,22 +152,22 @@ const Dashboard = () => {
     return provinceData;
   }, [tickets, customers]);
 
-  // Trend Chart Data (Last 7 days ticket count)
+  // Trend Chart Data (Last 30 days ticket count)
   const trendChartData = useMemo(() => {
     const trendMap = {};
     const now = new Date();
 
-    // Initialize last 7 days with 0
+    // Initialize last 30 days with 0
     for (let i = 29; i >= 0; i--) {
       const d = new Date();
       d.setDate(now.getDate() - i);
-      const dateKey = d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+      const dateKey = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
       trendMap[dateKey] = 0;
     }
 
     filteredTickets.forEach((t) => {
       if (!t.createdAt) return;
-      const dateKey = new Date(t.createdAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+      const dateKey = new Date(t.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short" });
       if (trendMap[dateKey] !== undefined) {
         trendMap[dateKey] += 1;
       }
@@ -166,7 +195,7 @@ const Dashboard = () => {
           <p>
             {selectedProvince
               ? `${selectedProvince.name} ili detaylı telecom arıza ve müşteri verileri.`
-              : "Türkiye genel durumu, bilet yoğunluk haritası ve genel performans metrikleri."}
+              : "Türkiye's overall situation, ticket density map, and general performance metrics."}
           </p>
         </div>
       </div>
@@ -179,7 +208,7 @@ const Dashboard = () => {
           </div>
           <div className="kpi-info">
             <span>Active Customers</span>
-            <strong>{totalCustomersCount}</strong>
+            <strong>{activeCustomersCount}</strong>
           </div>
         </div>
 
@@ -270,7 +299,7 @@ const Dashboard = () => {
           {/* Critical Tickets Card */}
           <div className="recent-tickets-card">
             <div className="recent-tickets-header">
-              <h3>Critical Alerts</h3>
+              <h3>Critical Tickets</h3>
               <p>Recent high priority and critical tickets</p>
             </div>
             <div className="tickets-list">

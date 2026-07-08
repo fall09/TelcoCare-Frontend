@@ -85,7 +85,7 @@ const Reports = () => {
         );
       } catch (err) {
         console.error("Error loading reports data:", err);
-        setError("Veriler yüklenirken bir hata oluştu.");
+        setError("An error occurred while loading reports data.");
       } finally {
         setLoading(false);
       }
@@ -115,7 +115,7 @@ const Reports = () => {
         catCounts[t.category] = (catCounts[t.category] || 0) + 1;
       }
     });
-    let topCategory = "Yok";
+    let topCategory = "None";
     let maxCatCount = 0;
     Object.entries(catCounts).forEach(([cat, count]) => {
       if (count > maxCatCount) {
@@ -132,7 +132,7 @@ const Reports = () => {
           (provinceCounts[t.issueProvince] || 0) + 1;
       }
     });
-    let topProvince = "Yok";
+    let topProvince = "None";
     let maxProvCount = 0;
     Object.entries(provinceCounts).forEach(([prov, count]) => {
       if (count > maxProvCount) {
@@ -169,7 +169,7 @@ const Reports = () => {
     for (let i = 14; i >= 0; i--) {
       const d = new Date();
       d.setDate(now.getDate() - i);
-      const dateKey = d.toLocaleDateString("tr-TR", {
+      const dateKey = d.toLocaleDateString("en-US", {
         day: "numeric",
         month: "short",
       });
@@ -178,7 +178,7 @@ const Reports = () => {
 
     tickets.forEach((t) => {
       if (!t.createdAt) return;
-      const createdDateKey = new Date(t.createdAt).toLocaleDateString("tr-TR", {
+      const createdDateKey = new Date(t.createdAt).toLocaleDateString("en-US", {
         day: "numeric",
         month: "short",
       });
@@ -197,7 +197,7 @@ const Reports = () => {
   const categoryData = useMemo(() => {
     const counts = {};
     tickets.forEach((t) => {
-      const cat = t.category || "Diğer";
+      const cat = t.category || "Other";
       counts[cat] = (counts[cat] || 0) + 1;
     });
 
@@ -236,7 +236,7 @@ const Reports = () => {
     return (
       <div className="reports-loading">
         <div className="spinner"></div>
-        <p>Analiz raporları hazırlanıyor...</p>
+        <p>Analysis reports are being prepared...</p>
       </div>
     );
   }
@@ -245,7 +245,7 @@ const Reports = () => {
     return (
       <div className="reports-error">
         <AlertTriangle size={48} className="error-icon" />
-        <h3>Sistem Hatası</h3>
+        <h3>System Error</h3>
         <p>{error}</p>
       </div>
     );
@@ -256,10 +256,9 @@ const Reports = () => {
       {/* Header */}
       <div className="reports-header">
         <div>
-          <h1>Raporlar ve Analitik</h1>
+          <h1>Reports and Analytics</h1>
           <p>
-            Müşteri hizmetleri performansı, bilet kategorileri ve genel müşteri
-            durum grafikleri.
+            Customer service performance, ticket categories, and general customer status charts.
           </p>
         </div>
       </div>
@@ -271,10 +270,10 @@ const Reports = () => {
             <Ticket size={24} />
           </div>
           <div className="kpi-details">
-            <span>Toplam Destek Bileti</span>
+            <span>Total Support Tickets</span>
             <strong>{kpis.totalTickets}</strong>
             <p className="kpi-subtext">
-              Aktif bilet sayısı: <b>{kpis.activeTickets}</b>
+              Active tickets count: <b>{kpis.activeTickets}</b>
             </p>
           </div>
         </div>
@@ -284,9 +283,9 @@ const Reports = () => {
             <Award size={24} />
           </div>
           <div className="kpi-details">
-            <span>Bilet Çözüm Oranı</span>
-            <strong>%{kpis.resolutionRate}</strong>
-            <p className="kpi-subtext">Çözülen/Kapatılan bilet oranı</p>
+            <span>Ticket Resolution Rate</span>
+            <strong>{kpis.resolutionRate}%</strong>
+            <p className="kpi-subtext">Resolved/Closed ticket ratio</p>
           </div>
         </div>
 
@@ -295,13 +294,13 @@ const Reports = () => {
             <AlertTriangle size={24} />
           </div>
           <div className="kpi-details">
-            <span>Kritik Öncelikli Biletler</span>
+            <span>Critical Priority Tickets</span>
             <strong
               className={kpis.criticalTickets > 0 ? "critical-pulse" : ""}
             >
               {kpis.criticalTickets}
             </strong>
-            <p className="kpi-subtext">Acil müdahale bekleyen arızalar</p>
+            <p className="kpi-subtext">Issues waiting for immediate action</p>
           </div>
         </div>
 
@@ -310,10 +309,10 @@ const Reports = () => {
             <Users size={24} />
           </div>
           <div className="kpi-details">
-            <span>Toplam Kayıtlı Müşteri</span>
+            <span>Total Registered Customers</span>
             <strong>{kpis.totalCustomers}</strong>
             <p className="kpi-subtext">
-              Aktif müşteri sayısı: <b>{kpis.activeCustomers}</b>
+              Active customers count: <b>{kpis.activeCustomers}</b>
             </p>
           </div>
         </div>
@@ -324,33 +323,33 @@ const Reports = () => {
         <div className="report-card aux-item">
           <div className="aux-header">
             <Layers size={18} />
-            <h4>En Yoğun Bilet Kategorisi</h4>
+            <h4>Busiest Ticket Category</h4>
           </div>
           <div className="aux-body">
             <strong>{kpis.topCategory}</strong>
-            <span>{kpis.topCategoryCount} Bilet</span>
+            <span>{kpis.topCategoryCount} Tickets</span>
           </div>
         </div>
 
         <div className="report-card aux-item">
           <div className="aux-header">
             <MapPin size={18} />
-            <h4>En Çok Arıza Bildiren İl</h4>
+            <h4>Province with Most Issues</h4>
           </div>
           <div className="aux-body">
             <strong>{kpis.topProvince}</strong>
-            <span>{kpis.topProvinceCount} Bilet</span>
+            <span>{kpis.topProvinceCount} Tickets</span>
           </div>
         </div>
 
         <div className="report-card aux-item">
           <div className="aux-header">
             <Clock size={18} />
-            <h4>Temsili SLA Ortalama Çözüm</h4>
+            <h4>Representative Avg SLA Resolution</h4>
           </div>
           <div className="aux-body">
-            <strong>3.8 Saat</strong>
-            <span className="sla-success">SLA Hedefinin Altında (%96)</span>
+            <strong>3.8 Hours</strong>
+            <span className="sla-success">Below SLA Target (96%)</span>
           </div>
         </div>
       </div>
@@ -360,10 +359,9 @@ const Reports = () => {
         {/* Trend Area Chart */}
         <div className="report-card chart-container span-2">
           <div className="chart-header">
-            <h3>Bilet Yoğunluğu ve Çözüm Performansı</h3>
+            <h3>Ticket Volume & Resolution Performance</h3>
             <p>
-              Son 15 günün günlük yeni eklenen biletleri ile çözüme kavuşan
-              bilet adetleri
+              Daily newly added tickets and resolved ticket counts for the last 15 days
             </p>
           </div>
           <div className="chart-wrapper">
@@ -419,7 +417,7 @@ const Reports = () => {
                   wrapperStyle={{ paddingTop: "15px", fontSize: "12px" }}
                 />
                 <Area
-                  name="Yeni Açılan"
+                  name="Newly Opened"
                   type="monotone"
                   dataKey="Created"
                   stroke="#2563eb"
@@ -428,7 +426,7 @@ const Reports = () => {
                   strokeWidth={2.5}
                 />
                 <Area
-                  name="Çözülen / Kapatılan"
+                  name="Resolved / Closed"
                   type="monotone"
                   dataKey="Resolved"
                   stroke="#16a34a"
@@ -444,9 +442,9 @@ const Reports = () => {
         {/* Categories Bar Chart */}
         <div className="report-card chart-container">
           <div className="chart-header">
-            <h3>Kategoriye Göre Biletler</h3>
+            <h3>Tickets by Category</h3>
             <p>
-              Destek biletlerinin hizmet kategorilerine göre toplam dağılımı
+              Total distribution of support tickets by service category
             </p>
           </div>
           <div className="chart-wrapper">
@@ -487,7 +485,7 @@ const Reports = () => {
                   />
                   <Bar
                     dataKey="value"
-                    name="Bilet Sayısı"
+                    name="Ticket Count"
                     radius={[0, 6, 6, 0]}
                     barSize={12}
                   >
@@ -501,7 +499,7 @@ const Reports = () => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="no-data-placeholder">Veri bulunamadı.</div>
+              <div className="no-data-placeholder">No data found.</div>
             )}
           </div>
         </div>
@@ -509,8 +507,8 @@ const Reports = () => {
         {/* Priority Donut Chart */}
         <div className="report-card chart-container">
           <div className="chart-header">
-            <h3>Bilet Öncelik Dağılımı</h3>
-            <p>Arızaların aciliyet derecelerine göre porsiyonları</p>
+            <h3>Ticket Priority Distribution</h3>
+            <p>Portions of issues by urgency levels</p>
           </div>
           <div className="chart-wrapper flex-center">
             <ResponsiveContainer width="100%" height={260}>
@@ -557,8 +555,8 @@ const Reports = () => {
         {/* Customer Status Pie Chart */}
         <div className="report-card chart-container">
           <div className="chart-header">
-            <h3>Müşteri Durum Dağılımı</h3>
-            <p>Abonelerin sistemdeki güncel sözleşme durum kırılımları</p>
+            <h3>Customer Status Distribution</h3>
+            <p>Current contract status breakdown of subscribers in the system</p>
           </div>
           <div className="chart-wrapper flex-center">
             <ResponsiveContainer width="100%" height={260}>
@@ -573,7 +571,7 @@ const Reports = () => {
                   dataKey="value"
                   nameKey="name"
                   label={({ name, percent }) =>
-                    `${name} (%${(percent * 100).toFixed(0)})`
+                    `${name} (${(percent * 100).toFixed(0)}%)`
                   }
                   labelLine={false}
                 >
@@ -601,9 +599,9 @@ const Reports = () => {
         {/* System Insights Alert Log */}
         <div className="report-card chart-container">
           <div className="chart-header">
-            <h3>Sistem Analiz Öngörüleri</h3>
+            <h3>System Analysis Insights</h3>
             <p>
-              Verilerden elde edilen otomatik yapay zeka bulguları ve uyarılar
+              Automated AI findings and warnings derived from data
             </p>
           </div>
           <div className="insights-list">
@@ -612,10 +610,9 @@ const Reports = () => {
                 <AlertTriangle size={16} />
               </div>
               <div className="insight-content">
-                <h5>Altyapı Arızalarında Artış</h5>
+                <h5>Spike in Infrastructure Faults</h5>
                 <p>
-                  Marmara bölgesinde altyapı kategorili biletler son 48 saatte
-                  %15 artış gösterdi.
+                  Infrastructure categorized tickets in Marmara region increased by 15% in the last 48 hours.
                 </p>
               </div>
             </div>
@@ -625,10 +622,9 @@ const Reports = () => {
                 <CheckCircle2 size={16} />
               </div>
               <div className="insight-content">
-                <h5>SLA Hedef Uyumu</h5>
+                <h5>SLA Target Compliance</h5>
                 <p>
-                  Çözülen biletlerin %96'sı yasal SLA süre limitlerinin altında
-                  tamamlandı.
+                  96% of resolved tickets were completed under the official SLA time limits.
                 </p>
               </div>
             </div>
@@ -638,10 +634,9 @@ const Reports = () => {
                 <TrendingUp size={16} />
               </div>
               <div className="insight-content">
-                <h5>Aktif Abone Artışı</h5>
+                <h5>Active Subscriber Growth</h5>
                 <p>
-                  Son 30 gün içinde aktif statüsüne geçen yeni abone sayısında
-                  kararlı bir ivme mevcut.
+                  There is a steady momentum in the number of new subscribers transitioning to active status within the last 30 days.
                 </p>
               </div>
             </div>
