@@ -1,17 +1,14 @@
-
-
-
 import { useEffect, useState, useMemo } from "react";
-import { 
-  TrendingUp, 
-  Award, 
-  Clock, 
-  MapPin, 
-  Users, 
-  Ticket, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Layers 
+import {
+  TrendingUp,
+  Award,
+  Clock,
+  MapPin,
+  Users,
+  Ticket,
+  CheckCircle2,
+  AlertTriangle,
+  Layers,
 } from "lucide-react";
 import {
   AreaChart,
@@ -38,7 +35,7 @@ const CHART_COLORS = {
   MEDIUM: "#f59e0b",
   HIGH: "#ef4444",
   CRITICAL: "#111827",
-  
+
   // Status Colors
   OPEN: "#2563eb",
   IN_PROGRESS: "#7c3aed",
@@ -78,8 +75,14 @@ const Reports = () => {
           getTickets(),
           getCustomers(),
         ]);
-        setTickets(ticketsData || []);
-        setCustomers(customersData || []);
+
+        setTickets(Array.isArray(ticketsData) ? ticketsData : []);
+
+        setCustomers(
+          Array.isArray(customersData)
+            ? customersData
+            : customersData.content || [],
+        );
       } catch (err) {
         console.error("Error loading reports data:", err);
         setError("Veriler yüklenirken bir hata oluştu.");
@@ -94,15 +97,20 @@ const Reports = () => {
   // KPIs
   const kpis = useMemo(() => {
     const totalT = tickets.length;
-    const resolvedT = tickets.filter(t => t.status === "RESOLVED" || t.status === "CLOSED").length;
-    const activeT = tickets.filter(t => t.status === "OPEN" || t.status === "IN_PROGRESS").length;
-    const criticalT = tickets.filter(t => t.priority === "CRITICAL").length;
+    const resolvedT = tickets.filter(
+      (t) => t.status === "RESOLVED" || t.status === "CLOSED",
+    ).length;
+    const activeT = tickets.filter(
+      (t) => t.status === "OPEN" || t.status === "IN_PROGRESS",
+    ).length;
+    const criticalT = tickets.filter((t) => t.priority === "CRITICAL").length;
 
-    const resolutionRate = totalT > 0 ? Math.round((resolvedT / totalT) * 100) : 0;
+    const resolutionRate =
+      totalT > 0 ? Math.round((resolvedT / totalT) * 100) : 0;
 
     // Most active category
     const catCounts = {};
-    tickets.forEach(t => {
+    tickets.forEach((t) => {
       if (t.category) {
         catCounts[t.category] = (catCounts[t.category] || 0) + 1;
       }
@@ -118,9 +126,10 @@ const Reports = () => {
 
     // Most active province
     const provinceCounts = {};
-    tickets.forEach(t => {
+    tickets.forEach((t) => {
       if (t.issueProvince) {
-        provinceCounts[t.issueProvince] = (provinceCounts[t.issueProvince] || 0) + 1;
+        provinceCounts[t.issueProvince] =
+          (provinceCounts[t.issueProvince] || 0) + 1;
       }
     });
     let topProvince = "Yok";
@@ -134,7 +143,7 @@ const Reports = () => {
 
     // Customer summary
     const totalC = customers.length;
-    const activeC = customers.filter(c => c.status === "ACTIVE").length;
+    const activeC = customers.filter((c) => c.status === "ACTIVE").length;
 
     return {
       totalTickets: totalT,
@@ -147,7 +156,7 @@ const Reports = () => {
       topProvince,
       topProvinceCount: maxProvCount,
       totalCustomers: totalC,
-      activeCustomers: activeC
+      activeCustomers: activeC,
     };
   }, [tickets, customers]);
 
@@ -160,13 +169,19 @@ const Reports = () => {
     for (let i = 14; i >= 0; i--) {
       const d = new Date();
       d.setDate(now.getDate() - i);
-      const dateKey = d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+      const dateKey = d.toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "short",
+      });
       trendMap[dateKey] = { date: dateKey, Created: 0, Resolved: 0 };
     }
 
     tickets.forEach((t) => {
       if (!t.createdAt) return;
-      const createdDateKey = new Date(t.createdAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+      const createdDateKey = new Date(t.createdAt).toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "short",
+      });
       if (trendMap[createdDateKey]) {
         trendMap[createdDateKey].Created += 1;
         if (t.status === "RESOLVED" || t.status === "CLOSED") {
@@ -242,7 +257,10 @@ const Reports = () => {
       <div className="reports-header">
         <div>
           <h1>Raporlar ve Analitik</h1>
-          <p>Müşteri hizmetleri performansı, bilet kategorileri ve genel müşteri durum grafikleri.</p>
+          <p>
+            Müşteri hizmetleri performansı, bilet kategorileri ve genel müşteri
+            durum grafikleri.
+          </p>
         </div>
       </div>
 
@@ -255,7 +273,9 @@ const Reports = () => {
           <div className="kpi-details">
             <span>Toplam Destek Bileti</span>
             <strong>{kpis.totalTickets}</strong>
-            <p className="kpi-subtext">Aktif bilet sayısı: <b>{kpis.activeTickets}</b></p>
+            <p className="kpi-subtext">
+              Aktif bilet sayısı: <b>{kpis.activeTickets}</b>
+            </p>
           </div>
         </div>
 
@@ -276,7 +296,9 @@ const Reports = () => {
           </div>
           <div className="kpi-details">
             <span>Kritik Öncelikli Biletler</span>
-            <strong className={kpis.criticalTickets > 0 ? "critical-pulse" : ""}>
+            <strong
+              className={kpis.criticalTickets > 0 ? "critical-pulse" : ""}
+            >
               {kpis.criticalTickets}
             </strong>
             <p className="kpi-subtext">Acil müdahale bekleyen arızalar</p>
@@ -290,7 +312,9 @@ const Reports = () => {
           <div className="kpi-details">
             <span>Toplam Kayıtlı Müşteri</span>
             <strong>{kpis.totalCustomers}</strong>
-            <p className="kpi-subtext">Aktif müşteri sayısı: <b>{kpis.activeCustomers}</b></p>
+            <p className="kpi-subtext">
+              Aktif müşteri sayısı: <b>{kpis.activeCustomers}</b>
+            </p>
           </div>
         </div>
       </div>
@@ -337,35 +361,63 @@ const Reports = () => {
         <div className="report-card chart-container span-2">
           <div className="chart-header">
             <h3>Bilet Yoğunluğu ve Çözüm Performansı</h3>
-            <p>Son 15 günün günlük yeni eklenen biletleri ile çözüme kavuşan bilet adetleri</p>
+            <p>
+              Son 15 günün günlük yeni eklenen biletleri ile çözüme kavuşan
+              bilet adetleri
+            </p>
           </div>
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={dailyTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart
+                data={dailyTrendData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="colorCreated" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
                     <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="colorResolved" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="colorResolved"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="5%" stopColor="#16a34a" stopOpacity={0.3} />
                     <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#64748b" }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#64748b" }} />
-                <RechartsTooltip 
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#e2e8f0"
+                />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11, fill: "#64748b" }}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11, fill: "#64748b" }}
+                />
+                <RechartsTooltip
                   contentStyle={{
                     backgroundColor: "#0f172a",
                     border: "none",
                     borderRadius: "10px",
                     color: "#f8fafc",
                     fontSize: "12px",
-                    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)"
+                    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)",
                   }}
                 />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: "15px", fontSize: "12px" }} />
+                <Legend
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: "15px", fontSize: "12px" }}
+                />
                 <Area
                   name="Yeni Açılan"
                   type="monotone"
@@ -393,19 +445,34 @@ const Reports = () => {
         <div className="report-card chart-container">
           <div className="chart-header">
             <h3>Kategoriye Göre Biletler</h3>
-            <p>Destek biletlerinin hizmet kategorilerine göre toplam dağılımı</p>
+            <p>
+              Destek biletlerinin hizmet kategorilerine göre toplam dağılımı
+            </p>
           </div>
           <div className="chart-wrapper">
             {categoryData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={categoryData} layout="vertical" margin={{ top: 10, right: 10, left: 15, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "#64748b" }} />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    tickLine={false} 
-                    axisLine={false} 
+                <BarChart
+                  data={categoryData}
+                  layout="vertical"
+                  margin={{ top: 10, right: 10, left: 15, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                    stroke="#e2e8f0"
+                  />
+                  <XAxis
+                    type="number"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 10, fill: "#64748b" }}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tickLine={false}
+                    axisLine={false}
                     tick={{ fontSize: 10, fill: "#475569", fontWeight: 600 }}
                     width={85}
                   />
@@ -415,14 +482,19 @@ const Reports = () => {
                       border: "none",
                       borderRadius: "10px",
                       color: "#f8fafc",
-                      fontSize: "12px"
+                      fontSize: "12px",
                     }}
                   />
-                  <Bar dataKey="value" name="Bilet Sayısı" radius={[0, 6, 6, 0]} barSize={12}>
+                  <Bar
+                    dataKey="value"
+                    name="Bilet Sayısı"
+                    radius={[0, 6, 6, 0]}
+                    barSize={12}
+                  >
                     {categoryData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={CHART_COLORS[entry.name] || CHART_COLORS.Other} 
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={CHART_COLORS[entry.name] || CHART_COLORS.Other}
                       />
                     ))}
                   </Bar>
@@ -454,7 +526,10 @@ const Reports = () => {
                   nameKey="name"
                 >
                   {priorityData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CHART_COLORS[entry.name]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={CHART_COLORS[entry.name]}
+                    />
                   ))}
                 </Pie>
                 <RechartsTooltip
@@ -463,13 +538,13 @@ const Reports = () => {
                     border: "none",
                     borderRadius: "10px",
                     color: "#f8fafc",
-                    fontSize: "12px"
+                    fontSize: "12px",
                   }}
                 />
-                <Legend 
-                  layout="horizontal" 
-                  align="center" 
-                  verticalAlign="bottom" 
+                <Legend
+                  layout="horizontal"
+                  align="center"
+                  verticalAlign="bottom"
                   iconType="circle"
                   iconSize={8}
                   wrapperStyle={{ fontSize: "11px", paddingTop: "10px" }}
@@ -497,11 +572,16 @@ const Reports = () => {
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) => `${name} (%${(percent * 100).toFixed(0)})`}
+                  label={({ name, percent }) =>
+                    `${name} (%${(percent * 100).toFixed(0)})`
+                  }
                   labelLine={false}
                 >
                   {customerStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CHART_COLORS[entry.name]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={CHART_COLORS[entry.name]}
+                    />
                   ))}
                 </Pie>
                 <RechartsTooltip
@@ -510,7 +590,7 @@ const Reports = () => {
                     border: "none",
                     borderRadius: "10px",
                     color: "#f8fafc",
-                    fontSize: "12px"
+                    fontSize: "12px",
                   }}
                 />
               </PieChart>
@@ -522,7 +602,9 @@ const Reports = () => {
         <div className="report-card chart-container">
           <div className="chart-header">
             <h3>Sistem Analiz Öngörüleri</h3>
-            <p>Verilerden elde edilen otomatik yapay zeka bulguları ve uyarılar</p>
+            <p>
+              Verilerden elde edilen otomatik yapay zeka bulguları ve uyarılar
+            </p>
           </div>
           <div className="insights-list">
             <div className="insight-item warning">
@@ -531,7 +613,10 @@ const Reports = () => {
               </div>
               <div className="insight-content">
                 <h5>Altyapı Arızalarında Artış</h5>
-                <p>Marmara bölgesinde altyapı kategorili biletler son 48 saatte %15 artış gösterdi.</p>
+                <p>
+                  Marmara bölgesinde altyapı kategorili biletler son 48 saatte
+                  %15 artış gösterdi.
+                </p>
               </div>
             </div>
 
@@ -541,7 +626,10 @@ const Reports = () => {
               </div>
               <div className="insight-content">
                 <h5>SLA Hedef Uyumu</h5>
-                <p>Çözülen biletlerin %96'sı yasal SLA süre limitlerinin altında tamamlandı.</p>
+                <p>
+                  Çözülen biletlerin %96'sı yasal SLA süre limitlerinin altında
+                  tamamlandı.
+                </p>
               </div>
             </div>
 
@@ -551,7 +639,10 @@ const Reports = () => {
               </div>
               <div className="insight-content">
                 <h5>Aktif Abone Artışı</h5>
-                <p>Son 30 gün içinde aktif statüsüne geçen yeni abone sayısında kararlı bir ivme mevcut.</p>
+                <p>
+                  Son 30 gün içinde aktif statüsüne geçen yeni abone sayısında
+                  kararlı bir ivme mevcut.
+                </p>
               </div>
             </div>
           </div>

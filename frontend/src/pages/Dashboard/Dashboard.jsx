@@ -28,17 +28,22 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadDashboardData = async () => {
-      try {
-        const [ticketsData, customersData] = await Promise.all([
-          getTickets(),
-          getCustomers(),
-        ]);
-        setTickets(ticketsData || []);
-        setCustomers(customersData || []);
-      } catch (err) {
-        console.error("Failed to load dashboard data:", err);
-      }
-    };
+  try {
+    const [ticketsData, customersData] = await Promise.all([
+      getTickets(),
+      getCustomers(),
+    ]);
+
+    setTickets(Array.isArray(ticketsData) ? ticketsData : []);
+    setCustomers(
+      Array.isArray(customersData)
+        ? customersData
+        : customersData.content || []
+    );
+  } catch (err) {
+    console.error("Failed to load dashboard data:", err);
+  }
+};
 
     loadDashboardData();
   }, []);
