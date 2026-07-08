@@ -9,8 +9,8 @@ import {
   Legend,
 } from "recharts";
 import "./Tickets.css";
-import { getTickets } from "../../services/ticketService";
 import { useNavigate } from "react-router-dom";
+import { getTickets, takeTicket } from "../../services/ticketService";
 
 const chartColors = {
   OPEN: "#2563eb",
@@ -54,6 +54,17 @@ function Tickets() {
     setTickets(data);
   };
 
+  const handleTakeTicket = async (e, ticketId) => {
+    e.stopPropagation();
+
+    try {
+      await takeTicket(ticketId);
+      await loadTickets();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const filteredTickets = tickets.filter((ticket) => {
     const keyword = search.toLowerCase();
 
@@ -87,8 +98,7 @@ function Tickets() {
     (ticket) => ticket.priority === "CRITICAL"
   ).length;
 
-  const resolvedCount =
-    countByStatus("RESOLVED") + countByStatus("CLOSED");
+  const resolvedCount = countByStatus("RESOLVED") + countByStatus("CLOSED");
 
   const unresolvedCount =
     countByStatus("OPEN") + countByStatus("IN_PROGRESS");
@@ -118,13 +128,8 @@ function Tickets() {
   };
 
   const getChartData = () => {
-    if (chartMode === "STATUS") {
-      return buildCountData(tickets, "status");
-    }
-
-    if (chartMode === "PRIORITY") {
-      return buildCountData(tickets, "priority");
-    }
+    if (chartMode === "STATUS") return buildCountData(tickets, "status");
+    if (chartMode === "PRIORITY") return buildCountData(tickets, "priority");
 
     if (chartMode === "CRITICAL_CATEGORY") {
       return buildCountData(
@@ -179,10 +184,7 @@ function Tickets() {
       </div>
 
       <div className="ticket-stats">
-        <button
-          className="ticket-stat-card"
-          onClick={() => setChartMode("STATUS")}
-        >
+        <button className="ticket-stat-card" onClick={() => setChartMode("STATUS")}>
           <div className="ticket-stat-icon blue">
             <Ticket size={22} />
           </div>
@@ -192,10 +194,7 @@ function Tickets() {
           </div>
         </button>
 
-        <button
-          className="ticket-stat-card"
-          onClick={() => setChartMode("OPEN_CATEGORY")}
-        >
+        <button className="ticket-stat-card" onClick={() => setChartMode("OPEN_CATEGORY")}>
           <div className="ticket-stat-icon orange">
             <Clock size={22} />
           </div>
@@ -205,10 +204,7 @@ function Tickets() {
           </div>
         </button>
 
-        <button
-          className="ticket-stat-card"
-          onClick={() => setChartMode("PRIORITY")}
-        >
+        <button className="ticket-stat-card" onClick={() => setChartMode("PRIORITY")}>
           <div className="ticket-stat-icon green">
             <CheckCircle2 size={22} />
           </div>
@@ -218,10 +214,7 @@ function Tickets() {
           </div>
         </button>
 
-        <button
-          className="ticket-stat-card"
-          onClick={() => setChartMode("CRITICAL_CATEGORY")}
-        >
+        <button className="ticket-stat-card" onClick={() => setChartMode("CRITICAL_CATEGORY")}>
           <div className="ticket-stat-icon red">
             <AlertCircle size={22} />
           </div>
@@ -240,34 +233,19 @@ function Tickets() {
           </div>
 
           <div className="analytics-tabs">
-            <button
-              className={chartMode === "STATUS" ? "active" : ""}
-              onClick={() => setChartMode("STATUS")}
-            >
+            <button className={chartMode === "STATUS" ? "active" : ""} onClick={() => setChartMode("STATUS")}>
               Status
             </button>
-            <button
-              className={chartMode === "PRIORITY" ? "active" : ""}
-              onClick={() => setChartMode("PRIORITY")}
-            >
+            <button className={chartMode === "PRIORITY" ? "active" : ""} onClick={() => setChartMode("PRIORITY")}>
               Priority
             </button>
-            <button
-              className={chartMode === "OPEN_CATEGORY" ? "active" : ""}
-              onClick={() => setChartMode("OPEN_CATEGORY")}
-            >
+            <button className={chartMode === "OPEN_CATEGORY" ? "active" : ""} onClick={() => setChartMode("OPEN_CATEGORY")}>
               Open
             </button>
-            <button
-              className={chartMode === "IN_PROGRESS_CATEGORY" ? "active" : ""}
-              onClick={() => setChartMode("IN_PROGRESS_CATEGORY")}
-            >
+            <button className={chartMode === "IN_PROGRESS_CATEGORY" ? "active" : ""} onClick={() => setChartMode("IN_PROGRESS_CATEGORY")}>
               In Progress
             </button>
-            <button
-              className={chartMode === "CRITICAL_CATEGORY" ? "active" : ""}
-              onClick={() => setChartMode("CRITICAL_CATEGORY")}
-            >
+            <button className={chartMode === "CRITICAL_CATEGORY" ? "active" : ""} onClick={() => setChartMode("CRITICAL_CATEGORY")}>
               Critical
             </button>
           </div>
@@ -292,9 +270,7 @@ function Tickets() {
                     />
                   ))}
                 </Pie>
-                <Tooltip
-                  formatter={(value, name) => [`${value} tickets`, name]}
-                />
+                <Tooltip formatter={(value, name) => [`${value} tickets`, name]} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -372,6 +348,7 @@ function Tickets() {
           <div>Priority</div>
           <div>Status</div>
           <div>Created</div>
+          <div>Action</div>
         </div>
 
         {currentTickets.map((ticket) => (
@@ -391,9 +368,7 @@ function Tickets() {
             <div>{ticket.subCategory}</div>
 
             <div>
-              <span
-                className={`ticket-priority ${ticket.priority.toLowerCase()}`}
-              >
+              <span className={`ticket-priority ${ticket.priority.toLowerCase()}`}>
                 {ticket.priority}
               </span>
             </div>
@@ -408,6 +383,21 @@ function Tickets() {
               {ticket.createdAt
                 ? new Date(ticket.createdAt).toLocaleDateString()
                 : "-"}
+            </div>
+
+            <div>
+              {ticket.assignedEmployeeId ? (
+                <span className="assigned-label">
+                  {ticket.assignedEmployeeName}
+                </span>
+              ) : (
+                <button
+                  className="take-ticket-btn"
+                  onClick={(e) => handleTakeTicket(e, ticket.id)}
+                >
+                  Take
+                </button>
+              )}
             </div>
           </div>
         ))}

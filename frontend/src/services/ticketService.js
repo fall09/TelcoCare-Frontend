@@ -1,26 +1,5 @@
 const BASE_URL = "http://localhost:8080/api/tickets";
 
-const UPDATES_KEY = "telcocare_ticket_updates";
-const HISTORY_KEY = "telcocare_ticket_history";
-
-function getLocalUpdates() {
-  const data = localStorage.getItem(UPDATES_KEY);
-  return data ? JSON.parse(data) : {};
-}
-
-function saveLocalUpdates(updates) {
-  localStorage.setItem(UPDATES_KEY, JSON.stringify(updates));
-}
-
-function getLocalHistories() {
-  const data = localStorage.getItem(HISTORY_KEY);
-  return data ? JSON.parse(data) : [];
-}
-
-function saveLocalHistories(histories) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(histories));
-}
-
 function authHeaders(json = false) {
   const token = localStorage.getItem("token");
 
@@ -49,6 +28,18 @@ export async function getTicketById(id) {
 
   if (!response.ok) {
     throw new Error("Failed to fetch ticket");
+  }
+
+  return response.json();
+}
+
+export async function getTicketStatusHistory(id) {
+  const response = await fetch(`${BASE_URL}/${id}/status-history`, {
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch ticket status history");
   }
 
   return response.json();
@@ -84,13 +75,15 @@ export async function updateTicket(id, payload) {
   return response.json();
 }
 
-export async function getTicketStatusHistory(id) {
-  const response = await fetch(`${BASE_URL}/${id}/status-history`, {
+export async function takeTicket(id) {
+  const response = await fetch(`${BASE_URL}/${id}/take`, {
+    method: "PATCH",
     headers: authHeaders(),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch ticket status history");
+    const error = await response.json();
+    throw new Error(error.message || "Failed to take ticket");
   }
 
   return response.json();

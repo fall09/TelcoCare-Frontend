@@ -319,3 +319,47 @@
 .tickets-table-row.clickable-row:active {
   transform: scale(0.998);
 }
+.tickets-table-header,
+.tickets-table-row {
+  grid-template-columns: 1.1fr 1.6fr 1.2fr 1.6fr 1fr 1fr 1fr 1fr;
+}
+
+
+.assigned-label {
+  display: inline-block;
+  background: #eef2ff;
+  color: #2f6bff;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tickets-table-header,
+.tickets-table-row {
+  grid-template-columns: 1.1fr 1.6fr 1.2fr 1.6fr 1fr 1fr 1fr 1fr;
+}
+
+.take-ticket-btn {
+  border: none;
+  background: #2f6bff;
+  color: white;
+  padding: 9px 15px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.take-ticket-btn:hover {
+  background: #2558d8;
+}
+
+.assigned-label {
+  display: inline-block;
+  background: #eef2ff;
+  color: #2f6bff;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}

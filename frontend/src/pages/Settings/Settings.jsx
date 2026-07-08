@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Bell,
-  ClipboardCheck,
+  LogOut,
   Settings as SettingsIcon,
   SlidersHorizontal,
+  User,
+  Mail,
+  Calendar,
 } from "lucide-react";
 import "./Settings.css";
 
@@ -14,23 +17,18 @@ import {
 } from "../../services/categoryService";
 
 function Settings() {
-  const [settings, setSettings] = useState({
+  const navigate = useNavigate();
 
+  const [settings, setSettings] = useState({
     defaultPriority: "MEDIUM",
     defaultStatus: "OPEN",
     locationRequiredDefault: true,
     autoAssignTickets: false,
-
-    emailNotifications: true,
-    criticalTicketAlerts: true,
-    suspendedCustomerAlerts: true,
-
-    trackStatusChanges: true,
-    trackCategoryChanges: true,
   });
 
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [employee, setEmployee] = useState(null);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
@@ -41,6 +39,11 @@ function Settings() {
 
   useEffect(() => {
     loadCategories();
+
+    const emp = localStorage.getItem("employee");
+    if (emp) {
+      setEmployee(JSON.parse(emp));
+    }
   }, []);
 
   const loadCategories = async () => {
@@ -71,16 +74,7 @@ function Settings() {
       (item) => item.id === Number(subCategoryId)
     );
 
-    if (selectedSub) {
-      setSelectedPriority(selectedSub.defaultPriority || "MEDIUM");
-    } else {
-      setSelectedPriority("MEDIUM");
-    }
-  };
-
-  const handlePriorityChange = (priority) => {
-    setSelectedPriority(priority);
-    setSaveMessage("");
+    setSelectedPriority(selectedSub?.defaultPriority || "MEDIUM");
   };
 
   const handleSavePriority = async () => {
@@ -129,9 +123,18 @@ function Settings() {
     }));
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
   const selectedSubCategory = subCategories.find(
     (item) => item.id === Number(selectedSubCategoryId)
   );
+
+  const employeeName = employee
+    ? `${employee.firstName || ""} ${employee.lastName || ""}`.trim()
+    : "-";
 
   const priorityOptions = (
     <>
@@ -147,10 +150,8 @@ function Settings() {
       <div className="page-header">
         <div>
           <h1>Settings</h1>
-          <p>Manage access rules, ticket defaults and category priorities.</p>
+          <p>Manage ticket defaults, category priorities and your profile.</p>
         </div>
-
-        <button className="save-settings-btn">Save Changes</button>
       </div>
 
       <div className="settings-grid">
@@ -263,7 +264,7 @@ function Settings() {
             <span>Priority</span>
             <select
               value={selectedPriority}
-              onChange={(e) => handlePriorityChange(e.target.value)}
+              onChange={(e) => setSelectedPriority(e.target.value)}
               disabled={!selectedSubCategoryId}
             >
               {priorityOptions}
@@ -300,95 +301,62 @@ function Settings() {
 
         <section className="settings-card">
           <div className="settings-card-header">
-            <div className="settings-icon green">
-              <Bell size={22} />
+            <div className="settings-icon blue">
+              <User size={22} />
             </div>
             <div>
-              <h2>Notifications</h2>
-              <p>Configure system alerts.</p>
+              <h2>Employee Profile</h2>
+              <p>Your account information.</p>
             </div>
           </div>
 
-          <div className="setting-row">
-            <div>
-              <strong>Email Notifications</strong>
-              <span>Send system notifications by email.</span>
-            </div>
-            <button
-              className={`toggle ${settings.emailNotifications ? "on" : ""}`}
-              onClick={() => toggleSetting("emailNotifications")}
-            >
-              <span />
-            </button>
-          </div>
+          {employee && (
+            <div className="employee-profile">
+              <div className="employee-row">
+                <User size={17} />
+                <div>
+                  <label>Name</label>
+                  <strong>{employeeName || "-"}</strong>
+                </div>
+              </div>
 
-          <div className="setting-row">
-            <div>
-              <strong>Critical Ticket Alerts</strong>
-              <span>Notify supervisors when critical tickets are created.</span>
-            </div>
-            <button
-              className={`toggle ${
-                settings.criticalTicketAlerts ? "on" : ""
-              }`}
-              onClick={() => toggleSetting("criticalTicketAlerts")}
-            >
-              <span />
-            </button>
-          </div>
+              <div className="employee-row">
+                <Mail size={17} />
+                <div>
+                  <label>Email</label>
+                  <span>{employee.email || "-"}</span>
+                </div>
+              </div>
 
-          <div className="setting-row">
-            <div>
-              <strong>Suspended Customer Alerts</strong>
-              <span>Notify admins when customers are suspended.</span>
+              <div className="employee-row">
+                <Calendar size={17} />
+                <div>
+                  <label>Created At</label>
+                  <span>
+                    {employee.createdAt
+                      ? new Date(employee.createdAt).toLocaleDateString("tr-TR")
+                      : "-"}
+                  </span>
+                </div>
+              </div>
             </div>
-            <button
-              className={`toggle ${
-                settings.suspendedCustomerAlerts ? "on" : ""
-              }`}
-              onClick={() => toggleSetting("suspendedCustomerAlerts")}
-            >
-              <span />
-            </button>
-          </div>
+          )}
         </section>
 
-        <section className="settings-card">
+        <section className="settings-card logout-settings-card">
           <div className="settings-card-header">
-            <div className="settings-icon dark">
-              <ClipboardCheck size={22} />
+            <div className="settings-icon red">
+              <LogOut size={22} />
             </div>
             <div>
-              <h2>Audit & Security</h2>
-              <p>Track important system changes.</p>
+              <h2>Logout</h2>
+              <p>End your current session securely.</p>
             </div>
           </div>
 
-          <div className="setting-row">
-            <div>
-              <strong>Track Status Changes</strong>
-              <span>Keep customer status history and reasons.</span>
-            </div>
-            <button
-              className={`toggle ${settings.trackStatusChanges ? "on" : ""}`}
-              onClick={() => toggleSetting("trackStatusChanges")}
-            >
-              <span />
-            </button>
-          </div>
-
-          <div className="setting-row">
-            <div>
-              <strong>Track Category Changes</strong>
-              <span>Log category and sub category updates.</span>
-            </div>
-            <button
-              className={`toggle ${settings.trackCategoryChanges ? "on" : ""}`}
-              onClick={() => toggleSetting("trackCategoryChanges")}
-            >
-              <span />
-            </button>
-          </div>
+          <button className="logout-settings-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </section>
       </div>
     </div>
