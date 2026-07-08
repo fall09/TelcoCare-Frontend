@@ -26,7 +26,7 @@ const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState(null);
-  
+
   // New states for dynamic totalElements count
   const [provinces, setProvinces] = useState([]);
   const [activeCustomersCount, setActiveCustomersCount] = useState(0);
@@ -44,7 +44,7 @@ const Dashboard = () => {
         setTickets(Array.isArray(ticketsData) ? ticketsData : []);
         setCustomers(customersData?.content || []);
         setProvinces(provincesData || []);
-        
+
         // Retrieve exact active customer count from Page metadata
         const total = customersData?.totalElements || 0;
         setOverallActiveCount(total);
