@@ -45,12 +45,12 @@ export async function getTicketById(id) {
 }
 
 export async function getTicketStatusHistory(id) {
-  const response = await fetch(`${BASE_URL}/${id}/status-history`, {
+  const response = await fetch(`${BASE_URL}/${id}/activities`, {
     headers: authHeaders(),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch ticket status history");
+    throw new Error("Failed to fetch ticket activities");
   }
 
   return response.json();
@@ -101,12 +101,12 @@ export async function takeTicket(id) {
 }
 
 export async function getTicketActivities(id) {
-  const response = await fetch(`${API_URL}/tickets/${id}/activities`, {
+  const response = await fetch(`${BASE_URL}/${id}/activities`, {
     headers: authHeaders(),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to load ticket activities");
+    throw new Error("Failed to fetch ticket activities");
   }
 
   return response.json();
