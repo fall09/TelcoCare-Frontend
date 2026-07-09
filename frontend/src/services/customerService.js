@@ -120,3 +120,14 @@ export async function getCustomerTickets(customerId) {
 
   return response.json();
 }
+export async function getCustomerStatusCounts() {
+  const response = await fetch(`${BASE_URL}/status-counts`, {
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch customer status counts");
+  }
+
+  return response.json();
+}
