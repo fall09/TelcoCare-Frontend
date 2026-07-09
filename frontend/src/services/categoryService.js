@@ -29,6 +29,21 @@ export async function getSubCategories(categoryId) {
   return response.json();
 }
 
+export async function getSubCategoriesForNewCustomer(categoryId) {
+  const response = await fetch(
+    `${BASE_URL}/${categoryId}/sub-categories/new-customer`,
+    {
+      headers: authHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch new customer sub categories");
+  }
+
+  return response.json();
+}
+
 export async function createCategory(payload) {
   const response = await fetch(BASE_URL, {
     method: "POST",

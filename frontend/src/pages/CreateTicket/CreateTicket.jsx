@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import "./CreateTicket.css";
 
 import { getCustomers, createCustomer } from "../../services/customerService";
-import { getCategories, getSubCategories } from "../../services/categoryService";
+import {
+  getCategories,
+  getSubCategories,
+  getSubCategoriesForNewCustomer,
+} from "../../services/categoryService";
 import { createTicket } from "../../services/ticketService";
 import {
   getProvinces,
@@ -37,6 +41,8 @@ function CreateTicket() {
 
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [newCustomerDistricts, setNewCustomerDistricts] = useState([]);
+  const customerRowsPerPage = 15;
+  
 
   const [newCustomer, setNewCustomer] = useState({
     firstName: "",
@@ -52,11 +58,42 @@ function CreateTicket() {
   }, []);
 
   const loadInitialData = async () => {
-    const customerData = await getCustomers(0, 1000);
+  const customerData = await getCustomers(
+    0,
+    customerRowsPerPage,
+    "",
+    "ALL",
+    "",
+    "",
+    "ALL"
+  );
+
+  setCustomers(customerData.content || []);
+  setCategories(await getCategories());
+  setProvinces(await getProvinces());
+};
+
+  const handleCustomerSearch = async (value) => {
+  setCustomerSearch(value);
+  setSelectedCustomer(null);
+
+  try {
+    const customerData = await getCustomers(
+      0,
+      customerRowsPerPage,
+      value,
+      "ALL",
+      "",
+      "",
+      "ALL"
+    );
+
     setCustomers(customerData.content || []);
-    setCategories(await getCategories());
-    setProvinces(await getProvinces());
-  };
+  } catch (err) {
+    console.error("Failed to search customers", err);
+    setCustomers([]);
+  }
+};
 
   const handleProvinceChange = async (value) => {
     setProvinceId(value);
@@ -102,6 +139,11 @@ function CreateTicket() {
       setCustomers((prev) => [created, ...prev]);
       setSelectedCustomer(created);
 
+      if (categoryId) {
+        const data = await getSubCategoriesForNewCustomer(categoryId);
+        setSubCategories(data);
+      }
+
       setCustomerSearch(
         `#${created.id} - ${created.firstName} ${created.lastName} - ${created.phoneNumber}`
       );
@@ -122,18 +164,7 @@ function CreateTicket() {
     }
   };
 
-  const filteredCustomers = customers
-    .filter((customer) => {
-      const keyword = customerSearch.toLowerCase();
-
-      return (
-        customer.firstName?.toLowerCase().includes(keyword) ||
-        customer.lastName?.toLowerCase().includes(keyword) ||
-        customer.phoneNumber?.includes(customerSearch) ||
-        String(customer.id).includes(customerSearch)
-      );
-    })
-    .slice(0, 8);
+  const filteredCustomers = customers.slice(0, 8);
 
   const handleCategoryChange = async (value) => {
     setCategoryId(value);
@@ -149,7 +180,18 @@ function CreateTicket() {
       return;
     }
 
-    setSubCategories(await getSubCategories(value));
+    try {
+      const data =
+        selectedCustomer?.status === "POTENTIAL"
+          ? await getSubCategoriesForNewCustomer(value)
+          : await getSubCategories(value);
+
+      setSubCategories(data);
+    } catch (err) {
+      console.error("Failed loading sub categories", err);
+      setSubCategories([]);
+      setError(err.message || "Failed to load sub categories.");
+    }
   };
 
   const handleSubCategoryChange = (value) => {
@@ -212,10 +254,7 @@ function CreateTicket() {
           <div className="customer-search-wrapper">
             <input
               value={customerSearch}
-              onChange={(e) => {
-                setCustomerSearch(e.target.value);
-                setSelectedCustomer(null);
-              }}
+              onChange={(e) => handleCustomerSearch(e.target.value)}
               placeholder="Search by name, surname, phone or ID..."
               required
             />
@@ -235,16 +274,42 @@ function CreateTicket() {
                 <button
                   type="button"
                   key={customer.id}
-                  onClick={() => {
+                  onClick={async () => {
                     setSelectedCustomer(customer);
                     setCustomerSearch(
                       `#${customer.id} - ${customer.firstName} ${customer.lastName} - ${customer.phoneNumber}`
                     );
+
+                    if (categoryId) {
+                      try {
+                        const data =
+                          customer.status === "POTENTIAL"
+                            ? await getSubCategoriesForNewCustomer(categoryId)
+                            : await getSubCategories(categoryId);
+
+                        setSubCategories(data);
+                        setSubCategoryId("");
+                        setSelectedSubCategory(null);
+                      } catch (err) {
+                        console.error(err);
+                      }
+                    }
                   }}
                 >
-                  <strong>
-                    #{customer.id} - {customer.firstName} {customer.lastName}
-                  </strong>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <strong>
+                      #{customer.id} - {customer.firstName} {customer.lastName}
+                    </strong>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: customer.status === "POTENTIAL" ? "#d97706" : "#16a34a",
+                      }}
+                    >
+                      {customer.status}
+                    </span>
+                  </div>
                   <span>{customer.phoneNumber}</span>
                 </button>
               ))}

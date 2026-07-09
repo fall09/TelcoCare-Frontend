@@ -19,11 +19,27 @@ import {
 import {
   getTicketById,
   updateTicket,
-  getTicketStatusHistory,
   takeTicket,
 } from "../../services/ticketService";
 
 import "./TicketDetail.css";
+const TICKET_BASE_URL = "http://localhost:8080/api/tickets";
+
+async function fetchTicketActivities(ticketId) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${TICKET_BASE_URL}/${ticketId}/activities`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch ticket activities");
+  }
+
+  return response.json();
+}
 
 const TicketDetail = () => {
   const { id } = useParams();
@@ -42,6 +58,58 @@ const TicketDetail = () => {
   const [status, setStatus] = useState("");
   const [statusNote, setStatusNote] = useState("");
   const [validationError, setValidationError] = useState("");
+  const getActivityDate = (log) => log.createdAt || log.changedAt;
+
+  const formatActivityValue = (value) => {
+    if (!value) return "-";
+    return String(value).replaceAll("_", " ");
+  };
+
+  const sortedHistory = [...history].sort(
+    (a, b) => new Date(getActivityDate(b)) - new Date(getActivityDate(a))
+  );
+
+  const formatActivityType = (type) => {
+    if (!type) return "Activity";
+
+    return type
+      .toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const getActivityDescription = (log) => {
+    if (log.type === "CREATED") {
+      return "Ticket created.";
+    }
+
+    if (log.type === "ASSIGNED") {
+      return `Assigned to ${log.newValue || log.employeeName || "employee"}.`;
+    }
+
+    if (log.type === "STATUS_CHANGED") {
+      return `Status changed from ${formatActivityValue(log.oldValue)} to ${formatActivityValue(log.newValue)}.`;
+    }
+
+    if (log.type === "PRIORITY_CHANGED") {
+      return `Priority changed from ${formatActivityValue(log.oldValue)} to ${formatActivityValue(log.newValue)}.`;
+    }
+
+    if (log.type === "DESCRIPTION_UPDATED") {
+      return "Ticket description updated.";
+    }
+
+    if (log.type === "RESOLVED") {
+      return "Ticket resolved.";
+    }
+
+    if (log.type === "CLOSED") {
+      return "Ticket closed.";
+    }
+
+    return "Ticket activity recorded.";
+  };
 
   useEffect(() => {
     loadTicketAndHistory();
@@ -52,10 +120,10 @@ const TicketDetail = () => {
       setLoading(true);
 
       const ticketData = await getTicketById(id);
-      const historyData = await getTicketStatusHistory(id);
+      const historyData = await fetchTicketActivities(id);
 
       setTicket(ticketData);
-      setHistory(historyData);
+      setHistory(Array.isArray(historyData) ? historyData : []);
 
       setDescription(ticketData.description || "");
       setPriority(ticketData.priority || "");
@@ -79,6 +147,8 @@ const TicketDetail = () => {
 
       const updated = await takeTicket(id);
       setTicket(updated);
+      const updatedHistory = await fetchTicketActivities(id);
+      setHistory(Array.isArray(updatedHistory) ? updatedHistory : []);
       setSuccessMsg("Bilet başarıyla üzerinize alındı.");
 
       setTimeout(() => setSuccessMsg(""), 4000);
@@ -114,8 +184,8 @@ const TicketDetail = () => {
       setTicket(updated);
       setSuccessMsg("Bilet detayları başarıyla güncellendi.");
 
-      const updatedHistory = await getTicketStatusHistory(id);
-      setHistory(updatedHistory);
+      const updatedHistory = await fetchTicketActivities(id);
+      setHistory(Array.isArray(updatedHistory) ? updatedHistory : []);
 
       setStatusNote("");
 
@@ -343,21 +413,21 @@ const TicketDetail = () => {
           <div className="detail-card history-timeline-card">
             <div className="history-card-header">
               <Activity size={18} className="header-icon" />
-              <h3>Bilet Durum Geçmişi</h3>
+              <h3>Ticket Activity Timeline</h3>
             </div>
 
             <div className="timeline-container">
-              {history.length === 0 ? (
+              {sortedHistory.length === 0 ? (
                 <div className="empty-timeline">
-                  Durum geçmişi kaydı bulunmuyor.
+                  No ticket activity found.
                 </div>
               ) : (
                 <div className="timeline">
-                  {history.map((log, index) => (
+                  {sortedHistory.map((log, index) => (
                     <div className="timeline-item" key={log.id}>
                       <div className="timeline-indicator">
                         <div className="timeline-dot" />
-                        {index < history.length - 1 && (
+                        {index < sortedHistory.length - 1 && (
                           <div className="timeline-line" />
                         )}
                       </div>
@@ -365,30 +435,45 @@ const TicketDetail = () => {
                       <div className="timeline-content">
                         <div className="timeline-meta">
                           <span className="timeline-date">
-                            {new Date(log.changedAt).toLocaleString("tr-TR")}
+                            {getActivityDate(log)
+                              ? new Date(getActivityDate(log)).toLocaleString("tr-TR")
+                              : "-"}
                           </span>
-                        </div>
-
-                        <div className="status-transition">
-                          {log.oldStatus && log.oldStatus !== "NONE" && (
-                            <>
-                              <span
-                                className={`status-badge-mini ${log.oldStatus.toLowerCase()}`}
-                              >
-                                {log.oldStatus.replace("_", " ")}
-                              </span>
-                              <span className="arrow-transition">→</span>
-                            </>
+                          {log.employeeName && (
+                            <span className="timeline-employee">
+                              {log.employeeName}
+                            </span>
                           )}
-
-                          <span
-                            className={`status-badge-mini ${log.newStatus.toLowerCase()}`}
-                          >
-                            {log.newStatus.replace("_", " ")}
-                          </span>
                         </div>
 
-                        {log.note && (
+                        <div className="timeline-activity-title">
+                          {formatActivityType(log.type)}
+                        </div>
+
+                        <p className="timeline-activity-description">
+                          {getActivityDescription(log)}
+                        </p>
+
+                        {(log.oldValue || log.newValue) && (
+                          <div className="status-transition">
+                            {log.oldValue && (
+                              <>
+                                <span className="status-badge-mini neutral">
+                                  {formatActivityValue(log.oldValue)}
+                                </span>
+                                <span className="arrow-transition">→</span>
+                              </>
+                            )}
+
+                            {log.newValue && (
+                              <span className="status-badge-mini neutral">
+                                {formatActivityValue(log.newValue)}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {log.note && log.note !== getActivityDescription(log) && (
                           <div className="timeline-note">
                             <MessageSquare size={12} className="note-icon" />
                             <p>{log.note}</p>

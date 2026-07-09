@@ -41,6 +41,7 @@ function Tickets() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
+  const [assignmentFilter, setAssignmentFilter] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [chartMode, setChartMode] = useState("STATUS");
 
@@ -84,7 +85,14 @@ function Tickets() {
     const matchesPriority =
       priorityFilter === "ALL" || ticket.priority === priorityFilter;
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    const matchesAssignment =
+      assignmentFilter === "ALL" ||
+      (assignmentFilter === "ASSIGNED" && ticket.assignedEmployeeId) ||
+      (assignmentFilter === "UNASSIGNED" && !ticket.assignedEmployeeId);
+
+    return (
+      matchesSearch && matchesStatus && matchesPriority && matchesAssignment
+    );
   });
 
   const sortedTickets = [...filteredTickets].sort((a, b) => a.id - b.id);
@@ -93,17 +101,22 @@ function Tickets() {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentTickets = sortedTickets.slice(
     startIndex,
-    startIndex + rowsPerPage
+    startIndex + rowsPerPage,
   );
 
   const countByStatus = (status) =>
     tickets.filter((ticket) => ticket.status === status).length;
 
-  const assignedCount = tickets.filter((ticket) => ticket.assignedEmployeeId).length;
-  const unassignedCount = tickets.filter((ticket) => !ticket.assignedEmployeeId).length;
+  const assignedCount = tickets.filter(
+    (ticket) => ticket.assignedEmployeeId,
+  ).length;
+
+  const unassignedCount = tickets.filter(
+    (ticket) => !ticket.assignedEmployeeId,
+  ).length;
 
   const criticalCount = tickets.filter(
-    (ticket) => ticket.priority === "CRITICAL"
+    (ticket) => ticket.priority === "CRITICAL",
   ).length;
 
   const resolvedCount = countByStatus("RESOLVED") + countByStatus("CLOSED");
@@ -111,12 +124,12 @@ function Tickets() {
 
   const criticalInProgressCount = tickets.filter(
     (ticket) =>
-      ticket.status === "IN_PROGRESS" && ticket.priority === "CRITICAL"
+      ticket.status === "IN_PROGRESS" && ticket.priority === "CRITICAL",
   ).length;
 
   const nonCriticalInProgressCount = tickets.filter(
     (ticket) =>
-      ticket.status === "IN_PROGRESS" && ticket.priority !== "CRITICAL"
+      ticket.status === "IN_PROGRESS" && ticket.priority !== "CRITICAL",
   ).length;
 
   const buildCountData = (items, field) => {
@@ -147,21 +160,21 @@ function Tickets() {
     if (chartMode === "CRITICAL_CATEGORY") {
       return buildCountData(
         tickets.filter((ticket) => ticket.priority === "CRITICAL"),
-        "category"
+        "category",
       );
     }
 
     if (chartMode === "OPEN_CATEGORY") {
       return buildCountData(
         tickets.filter((ticket) => ticket.status === "OPEN"),
-        "category"
+        "category",
       );
     }
 
     if (chartMode === "IN_PROGRESS_CATEGORY") {
       return buildCountData(
         tickets.filter((ticket) => ticket.status === "IN_PROGRESS"),
-        "category"
+        "category",
       );
     }
 
@@ -172,7 +185,8 @@ function Tickets() {
     if (chartMode === "STATUS") return "Ticket Status Distribution";
     if (chartMode === "PRIORITY") return "Ticket Priority Distribution";
     if (chartMode === "ASSIGNMENT") return "Ticket Assignment Distribution";
-    if (chartMode === "CRITICAL_CATEGORY") return "Critical Tickets by Category";
+    if (chartMode === "CRITICAL_CATEGORY")
+      return "Critical Tickets by Category";
     if (chartMode === "OPEN_CATEGORY") return "Open Tickets by Category";
     if (chartMode === "IN_PROGRESS_CATEGORY")
       return "In Progress Tickets by Category";
@@ -404,6 +418,18 @@ function Tickets() {
           <option value="MEDIUM">Medium</option>
           <option value="HIGH">High</option>
           <option value="CRITICAL">Critical</option>
+        </select>
+
+        <select
+          value={assignmentFilter}
+          onChange={(e) => {
+            setAssignmentFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+        >
+          <option value="ALL">All Assignments</option>
+          <option value="ASSIGNED">Assigned Tickets</option>
+          <option value="UNASSIGNED">Unassigned Pool</option>
         </select>
       </div>
 

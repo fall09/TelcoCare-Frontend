@@ -647,3 +647,30 @@
 .info-summary h3 {
   margin-top: 0;
 }
+.timeline-employee {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.timeline-activity-title {
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.timeline-activity-description {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.status-badge-mini.neutral {
+  background: #f1f5f9;
+  color: #334155;
+}

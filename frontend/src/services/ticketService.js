@@ -99,3 +99,15 @@ export async function takeTicket(id) {
 
   return response.json();
 }
+
+export async function getTicketActivities(id) {
+  const response = await fetch(`${API_URL}/tickets/${id}/activities`, {
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to load ticket activities");
+  }
+
+  return response.json();
+}

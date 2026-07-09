@@ -53,6 +53,12 @@ const priorityColors = {
   HIGH: "#ef4444",
   CRITICAL: "#111827",
 };
+const priorityOrder = {
+  CRITICAL: 1,
+  HIGH: 2,
+  MEDIUM: 3,
+  LOW: 4,
+};
 
 function Categories() {
   const [categories, setCategories] = useState([]);
@@ -80,7 +86,7 @@ function Categories() {
     setCategories(data);
 
     const allSubs = await Promise.all(
-      data.map((category) => getSubCategories(category.id))
+      data.map((category) => getSubCategories(category.id)),
     );
 
     setAllSubCategories(allSubs.flat());
@@ -92,8 +98,16 @@ function Categories() {
 
   const handleCategoryClick = async (category) => {
     setSelectedCategory(category);
+
     const data = await getSubCategories(category.id);
-    setSubCategories(data);
+
+    const sorted = [...data].sort(
+      (a, b) =>
+        priorityOrder[a.defaultPriority || "MEDIUM"] -
+        priorityOrder[b.defaultPriority || "MEDIUM"],
+    );
+
+    setSubCategories(sorted);
   };
 
   const handleCreateCategory = async () => {
@@ -131,44 +145,52 @@ function Categories() {
 
   const totalSubCategories = categories.reduce(
     (sum, item) => sum + item.subCategoryCount,
-    0
+    0,
   );
 
-  const priorityData = ["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((priority) => ({
-    name: priority,
-    value: allSubCategories.filter(
-      (sub) => (sub.defaultPriority || "MEDIUM") === priority
-    ).length,
-  }));
+  const priorityData = ["LOW", "MEDIUM", "HIGH", "CRITICAL"].map(
+    (priority) => ({
+      name: priority,
+      value: allSubCategories.filter(
+        (sub) => (sub.defaultPriority || "MEDIUM") === priority,
+      ).length,
+    }),
+  );
 
   const handleToggleLocation = async (sub) => {
-  try {
-    const updated = await updateSubCategory(sub.id, {
-      name: sub.name,
-      locationRequired: !sub.locationRequired,
-      defaultPriority: sub.defaultPriority,
-    });
+    try {
+      const updated = await updateSubCategory(sub.id, {
+        name: sub.name,
+        locationRequired: !sub.locationRequired,
+        defaultPriority: sub.defaultPriority,
+      });
 
-    setSubCategories((prev) =>
-      prev.map((item) => (item.id === updated.id ? updated : item))
-    );
+      setSubCategories((prev) =>
+        prev
+          .map((item) => (item.id === updated.id ? updated : item))
+          .sort(
+            (a, b) =>
+              priorityOrder[a.defaultPriority || "MEDIUM"] -
+              priorityOrder[b.defaultPriority || "MEDIUM"],
+          ),
+      );
 
-    setAllSubCategories((prev) =>
-      prev.map((item) => (item.id === updated.id ? updated : item))
-    );
-  } catch (err) {
-    console.error(err);
-  }
-};
+      setAllSubCategories((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item)),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const selectedPriorityItems = selectedPriority
     ? allSubCategories.filter(
-        (sub) => (sub.defaultPriority || "MEDIUM") === selectedPriority
+        (sub) => (sub.defaultPriority || "MEDIUM") === selectedPriority,
       )
     : [];
 
   const locationRequiredCount = subCategories.filter(
-    (item) => item.locationRequired
+    (item) => item.locationRequired,
   ).length;
 
   return (
@@ -295,17 +317,17 @@ function Categories() {
                   <div>
                     <strong>{sub.name}</strong>
                     <div className="location-toggle">
-  <span>Location</span>
+                      <span>Location</span>
 
-  <button
-    className={`location-switch ${
-      sub.locationRequired ? "required" : "optional"
-    }`}
-    onClick={() => handleToggleLocation(sub)}
-  >
-    {sub.locationRequired ? "Required" : "Optional"}
-  </button>
-</div>
+                      <button
+                        className={`location-switch ${
+                          sub.locationRequired ? "required" : "optional"
+                        }`}
+                        onClick={() => handleToggleLocation(sub)}
+                      >
+                        {sub.locationRequired ? "Required" : "Optional"}
+                      </button>
+                    </div>
                   </div>
 
                   <span className={`priority-badge ${priority.toLowerCase()}`}>
@@ -371,7 +393,9 @@ function Categories() {
                   }`}
                   onClick={() => setSelectedPriority(item.name)}
                 >
-                  <span className={`priority-dot ${item.name.toLowerCase()}`}></span>
+                  <span
+                    className={`priority-dot ${item.name.toLowerCase()}`}
+                  ></span>
                   <strong>{item.name}</strong>
                   <p>{item.value} sub categories</p>
                 </button>
@@ -414,7 +438,9 @@ function Categories() {
             />
 
             <div className="category-modal-actions">
-              <button onClick={() => setShowCategoryModal(false)}>Cancel</button>
+              <button onClick={() => setShowCategoryModal(false)}>
+                Cancel
+              </button>
               <button className="primary-btn" onClick={handleCreateCategory}>
                 Create
               </button>
