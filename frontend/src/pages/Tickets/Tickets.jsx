@@ -103,6 +103,12 @@ function Tickets() {
     startIndex,
     startIndex + rowsPerPage,
   );
+  const prioritySlaLabel = {
+    CRITICAL: "≤ 2h",
+    HIGH: "≤ 4h",
+    MEDIUM: "≤ 8h",
+    LOW: "≤ 24h",
+  };
 
   const countByStatus = (status) =>
     tickets.filter((ticket) => ticket.status === status).length;
@@ -475,7 +481,8 @@ function Tickets() {
               <span
                 className={`ticket-priority ${ticket.priority.toLowerCase()}`}
               >
-                {ticket.priority}
+                <span>{ticket.priority}</span>
+                <small>{prioritySlaLabel[ticket.priority]}</small>
               </span>
             </div>
 

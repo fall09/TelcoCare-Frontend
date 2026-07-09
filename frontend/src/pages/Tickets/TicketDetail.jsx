@@ -25,6 +25,13 @@ import {
 import "./TicketDetail.css";
 const TICKET_BASE_URL = "http://localhost:8080/api/tickets";
 
+const prioritySlaLabel = {
+  CRITICAL: "≤ 2h",
+  HIGH: "≤ 4h",
+  MEDIUM: "≤ 8h",
+  LOW: "≤ 24h",
+};
+
 async function fetchTicketActivities(ticketId) {
   const token = localStorage.getItem("token");
 
@@ -66,7 +73,7 @@ const TicketDetail = () => {
   };
 
   const sortedHistory = [...history].sort(
-    (a, b) => new Date(getActivityDate(b)) - new Date(getActivityDate(a))
+    (a, b) => new Date(getActivityDate(b)) - new Date(getActivityDate(a)),
   );
 
   const formatActivityType = (type) => {
@@ -166,7 +173,7 @@ const TicketDetail = () => {
 
     if (isStatusChanged && !statusNote.trim()) {
       setValidationError(
-        "Bilet durumunu değiştirdiğinizde açıklama/not girilmesi zorunludur."
+        "Bilet durumunu değiştirdiğinizde açıklama/not girilmesi zorunludur.",
       );
       return;
     }
@@ -247,7 +254,8 @@ const TicketDetail = () => {
             </span>
 
             <span className={`priority-badge ${ticket.priority.toLowerCase()}`}>
-              {ticket.priority} Öncelik
+              {ticket.priority} Öncelik · SLA{" "}
+              {prioritySlaLabel[ticket.priority]}
             </span>
           </div>
         </div>
@@ -321,7 +329,9 @@ const TicketDetail = () => {
                 <Calendar size={16} />
                 <div>
                   <label>Oluşturulma Tarihi</label>
-                  <span>{new Date(ticket.createdAt).toLocaleString("tr-TR")}</span>
+                  <span>
+                    {new Date(ticket.createdAt).toLocaleString("tr-TR")}
+                  </span>
                 </div>
               </div>
 
@@ -346,7 +356,10 @@ const TicketDetail = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>Bilet Durumu</label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
                     <option value="OPEN">Open</option>
                     <option value="IN_PROGRESS">In Progress</option>
                     <option value="ON_HOLD">On Hold</option>
@@ -361,10 +374,10 @@ const TicketDetail = () => {
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
                   >
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="CRITICAL">Critical</option>
+                    <option value="LOW">Low (≤ 24h)</option>
+                    <option value="MEDIUM">Medium (≤ 8h)</option>
+                    <option value="HIGH">High (≤ 4h)</option>
+                    <option value="CRITICAL">Critical (≤ 2h)</option>
                   </select>
                 </div>
               </div>
@@ -418,9 +431,7 @@ const TicketDetail = () => {
 
             <div className="timeline-container">
               {sortedHistory.length === 0 ? (
-                <div className="empty-timeline">
-                  No ticket activity found.
-                </div>
+                <div className="empty-timeline">No ticket activity found.</div>
               ) : (
                 <div className="timeline">
                   {sortedHistory.map((log, index) => (
@@ -436,7 +447,9 @@ const TicketDetail = () => {
                         <div className="timeline-meta">
                           <span className="timeline-date">
                             {getActivityDate(log)
-                              ? new Date(getActivityDate(log)).toLocaleString("tr-TR")
+                              ? new Date(getActivityDate(log)).toLocaleString(
+                                  "tr-TR",
+                                )
                               : "-"}
                           </span>
                           {log.employeeName && (
@@ -473,12 +486,13 @@ const TicketDetail = () => {
                           </div>
                         )}
 
-                        {log.note && log.note !== getActivityDescription(log) && (
-                          <div className="timeline-note">
-                            <MessageSquare size={12} className="note-icon" />
-                            <p>{log.note}</p>
-                          </div>
-                        )}
+                        {log.note &&
+                          log.note !== getActivityDescription(log) && (
+                            <div className="timeline-note">
+                              <MessageSquare size={12} className="note-icon" />
+                              <p>{log.note}</p>
+                            </div>
+                          )}
                       </div>
                     </div>
                   ))}

@@ -42,7 +42,6 @@ function CreateTicket() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [newCustomerDistricts, setNewCustomerDistricts] = useState([]);
   const customerRowsPerPage = 15;
-  
 
   const [newCustomer, setNewCustomer] = useState({
     firstName: "",
@@ -58,42 +57,42 @@ function CreateTicket() {
   }, []);
 
   const loadInitialData = async () => {
-  const customerData = await getCustomers(
-    0,
-    customerRowsPerPage,
-    "",
-    "ALL",
-    "",
-    "",
-    "ALL"
-  );
-
-  setCustomers(customerData.content || []);
-  setCategories(await getCategories());
-  setProvinces(await getProvinces());
-};
-
-  const handleCustomerSearch = async (value) => {
-  setCustomerSearch(value);
-  setSelectedCustomer(null);
-
-  try {
     const customerData = await getCustomers(
       0,
       customerRowsPerPage,
-      value,
+      "",
       "ALL",
       "",
       "",
-      "ALL"
+      "ALL",
     );
 
     setCustomers(customerData.content || []);
-  } catch (err) {
-    console.error("Failed to search customers", err);
-    setCustomers([]);
-  }
-};
+    setCategories(await getCategories());
+    setProvinces(await getProvinces());
+  };
+
+  const handleCustomerSearch = async (value) => {
+    setCustomerSearch(value);
+    setSelectedCustomer(null);
+
+    try {
+      const customerData = await getCustomers(
+        0,
+        customerRowsPerPage,
+        value,
+        "ALL",
+        "",
+        "",
+        "ALL",
+      );
+
+      setCustomers(customerData.content || []);
+    } catch (err) {
+      console.error("Failed to search customers", err);
+      setCustomers([]);
+    }
+  };
 
   const handleProvinceChange = async (value) => {
     setProvinceId(value);
@@ -133,7 +132,7 @@ function CreateTicket() {
         email: newCustomer.email,
         provinceId: Number(newCustomer.provinceId),
         districtId: Number(newCustomer.districtId),
-        status: "POTENTIAL"
+        status: "POTENTIAL",
       });
 
       setCustomers((prev) => [created, ...prev]);
@@ -145,7 +144,7 @@ function CreateTicket() {
       }
 
       setCustomerSearch(
-        `#${created.id} - ${created.firstName} ${created.lastName} - ${created.phoneNumber}`
+        `#${created.id} - ${created.firstName} ${created.lastName} - ${created.phoneNumber}`,
       );
 
       setNewCustomer({
@@ -277,7 +276,7 @@ function CreateTicket() {
                   onClick={async () => {
                     setSelectedCustomer(customer);
                     setCustomerSearch(
-                      `#${customer.id} - ${customer.firstName} ${customer.lastName} - ${customer.phoneNumber}`
+                      `#${customer.id} - ${customer.firstName} ${customer.lastName} - ${customer.phoneNumber}`,
                     );
 
                     if (categoryId) {
@@ -296,7 +295,13 @@ function CreateTicket() {
                     }
                   }}
                 >
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <strong>
                       #{customer.id} - {customer.firstName} {customer.lastName}
                     </strong>
@@ -304,7 +309,10 @@ function CreateTicket() {
                       style={{
                         fontSize: 12,
                         fontWeight: 600,
-                        color: customer.status === "POTENTIAL" ? "#d97706" : "#16a34a",
+                        color:
+                          customer.status === "POTENTIAL"
+                            ? "#d97706"
+                            : "#16a34a",
                       }}
                     >
                       {customer.status}
@@ -377,10 +385,10 @@ function CreateTicket() {
             onChange={(e) => setPriority(e.target.value)}
             required
           >
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-            <option value="CRITICAL">Critical</option>
+            <option value="LOW">Low (≤ 24h)</option>
+            <option value="MEDIUM">Medium (≤ 8h)</option>
+            <option value="HIGH">High (≤ 4h)</option>
+            <option value="CRITICAL">Critical (≤ 2h)</option>
           </select>
 
           <div className="assign-toggle-row">
@@ -537,10 +545,7 @@ function CreateTicket() {
             </select>
 
             <div className="modal-buttons">
-              <button
-                type="button"
-                onClick={() => setShowCustomerModal(false)}
-              >
+              <button type="button" onClick={() => setShowCustomerModal(false)}>
                 Cancel
               </button>
 
